@@ -1,51 +1,7 @@
 (function () {
   const D = window.CM_DATA;
-  const state = { q1: null, q2: null, q3: null, q5: null, collectIII: true, statelessCoded: true };
 
-  const QUESTIONS = [
-    { key: "q1", title: "(i) Country of birth", meta: "Core topic", opts: [["census", "Census country"], ["abroad", "Abroad"]] },
-    { key: "q2", title: "(ii) Country of citizenship", meta: "Core topic", opts: [["foreign", "Foreign country"], ["stateless", "Stateless or unknown"], ["census", "Census country"]] },
-    { key: "q3", title: "(iii) Acquisition of citizenship", meta: "Core in IRRS, additional in P&R Rev. 4", opts: [["birth", "By birth"], ["nat", "Naturalisation, marriage, declaration, option"]] },
-    { key: "q5", title: "(v) Main reason for most recent move", meta: "IRRS recommended", opts: [["d", "(d) Forced displacement"], ["other", "Other (work, study, family, deportation, other)"]] }
-  ];
-  const ORDER = ["q1", "q2", "q3", "q5"];
-
-  function visible(key) {
-    const s = state;
-    if (key === "q1") return true;
-    if (key === "q2") return s.q1 === "abroad";
-    if (key === "q3") return s.q1 === "abroad" && s.q2 === "census" && s.collectIII;
-    if (key === "q5") {
-      if (s.q1 !== "abroad" || !s.q2) return false;
-      if (s.q2 === "foreign") return true;
-      if (s.q2 === "stateless") return s.statelessCoded;
-      if (s.q2 === "census") return s.collectIII ? s.q3 === "nat" : true;
-    }
-    return false;
-  }
-
-  function resolve() {
-    const s = state;
-    if (s.q1 === "census") return { out: "o1", path: ["q-i"], lit: "out-o1" };
-    if (s.q1 !== "abroad" || !s.q2) return null;
-    if (s.q2 === "stateless" && !s.statelessCoded) return { out: "stateless_missed", path: ["q-i", "q-ii"], lit: null };
-    if (s.q2 === "foreign" || s.q2 === "stateless") {
-      if (!s.q5) return null;
-      return { out: s.q5 === "d" ? "o2" : "o3", path: ["q-i", "q-ii", "q-va"], lit: s.q5 === "d" ? "out-o2" : "out-o3" };
-    }
-    if (s.q2 === "census") {
-      if (s.collectIII) {
-        if (!s.q3) return null;
-        if (s.q3 === "birth") return { out: "o3", path: ["q-i", "q-ii", "q-iii"], lit: "out-o3", byBirth: true };
-        if (!s.q5) return null;
-        return { out: s.q5 === "d" ? "o4" : "o3", path: ["q-i", "q-ii", "q-iii", "q-vb"], lit: s.q5 === "d" ? "out-o4" : "out-o3" };
-      }
-      if (!s.q5) return null;
-      return { out: s.q5 === "d" ? "o4" : "o3", path: ["q-i", "q-ii", "q-vb"], lit: s.q5 === "d" ? "out-o4" : "out-o3" };
-    }
-    return null;
-  }
-
+  // ---------- small helpers
   function el(tag, attrs, children) {
     const n = document.createElement(tag);
     Object.entries(attrs || {}).forEach(([k, v]) => {
@@ -55,162 +11,262 @@
     (children || []).forEach(c => n.appendChild(typeof c === "string" ? document.createTextNode(c) : c));
     return n;
   }
+  const SRC = { draft: ["In draft", "src-draft"], added: ["Suggested", "src-added"] };
+  function itemLi(it) {
+    const li = el("li", { class: it.flag ? "flag" : "" });
+    if (it.src) li.appendChild(el("span", { class: "src " + SRC[it.src][1], text: SRC[it.src][0] }));
+    li.appendChild(document.createTextNode(" " + it.text + " "));
+    if (it.ref) li.appendChild(el("span", { class: "ref", text: "(" + it.ref + ")" }));
+    return li;
+  }
 
-  function renderQuestions() {
-    const box = document.getElementById("questions");
-    box.innerHTML = "";
-    QUESTIONS.forEach(q => {
-      const card = el("div", { class: "q" + (visible(q.key) ? "" : " hidden") });
-      card.appendChild(el("div", {}, [el("span", { class: "q-title", text: q.title }), el("span", { class: "q-meta", text: q.meta })]));
-      const opts = el("div", { class: "opts", role: "group", "aria-label": q.title });
-      q.opts.forEach(([val, label]) => {
-        opts.appendChild(el("button", {
-          class: state[q.key] === val ? "on" : "", "aria-pressed": state[q.key] === val ? "true" : "false", text: label,
-          onclick: () => { state[q.key] = val; ORDER.slice(ORDER.indexOf(q.key) + 1).forEach(k => state[k] = null); update(); }
-        }));
+  // ---------- logic per framework: which questions show, and where answers lead
+  const LOGIC = {
+    irrs: {
+      order: ["q1", "q2", "q3", "q5"],
+      visible(key, s) {
+        if (key === "q1") return true;
+        if (key === "q2") return s.q1 === "abroad";
+        if (key === "q3") return s.q1 === "abroad" && s.q2 === "census" && s.collectIII;
+        if (key === "q5") {
+          if (s.q1 !== "abroad" || !s.q2) return false;
+          if (s.q2 === "foreign") return true;
+          if (s.q2 === "stateless") return s.statelessCoded;
+          if (s.q2 === "census") return s.collectIII ? s.q3 === "nat" : true;
+        }
+        return false;
+      },
+      resolve(s) {
+        if (s.q1 === "census") return { out: "o1", path: ["q-i", "p-born-here"], lit: "out-o1" };
+        if (s.q1 !== "abroad" || !s.q2) return null;
+        if (s.q2 === "stateless" && !s.statelessCoded) return { out: "stateless_missed", path: ["q-i", "p-abroad", "q-ii"], lit: null };
+        if (s.q2 === "foreign" || s.q2 === "stateless") {
+          if (!s.q5) return null;
+          const d = s.q5 === "d";
+          return { out: d ? "o2" : "o3", path: ["q-i", "p-abroad", "q-ii", "p-foreign", "q-va", d ? "p-d-a" : "p-other-a"], lit: d ? "out-o2" : "out-o3" };
+        }
+        if (s.collectIII) {
+          if (!s.q3) return null;
+          if (s.q3 === "birth") return { out: "o3", path: ["q-i", "p-abroad", "q-ii", "p-cit-census", "q-iii", "p-bybirth"], lit: "out-o3", note: "Citizen by birth, so correctly not counted as a person with a refugee background." };
+          if (!s.q5) return null;
+          const d = s.q5 === "d";
+          return { out: d ? "o4" : "o3", path: ["q-i", "p-abroad", "q-ii", "p-cit-census", "q-iii", "p-natur", "q-vb", d ? "p-d-b" : "p-other-b"], lit: d ? "out-o4" : "out-o3" };
+        }
+        if (!s.q5) return null;
+        const d = s.q5 === "d";
+        return { out: d ? "o4" : "o3", path: ["q-i", "p-abroad", "q-ii", "p-cit-census", "q-vb", d ? "p-d-b" : "p-other-b"], lit: d ? "out-o4" : "out-o3" };
+      },
+      showItem(it, s) { return it.needs !== "noIII" || !s.collectIII; },
+      avoided(s, r) { return r.out === "o4" && s.collectIII ? "Avoided because (iii) is collected: citizens by birth born abroad who fled are kept out of refugee background." : ""; }
+    },
+    iris: {
+      order: ["ix", "xiii", "loc"],
+      visible(key, s) {
+        if (key === "ix") return true;
+        if (key === "xiii") return s.ix === "yes";
+        if (key === "loc") return s.ix === "yes" && s.xiii === "within";
+        return false;
+      },
+      resolve(s) {
+        if (s.ix === "no") return { out: "n1", path: ["q-ix", "p-no"], lit: "out-n1" };
+        if (s.ix !== "yes" || !s.xiii) return null;
+        if (s.xiii === "abroad") return { out: "n2", path: ["q-ix", "p-yes", "q-xiii", "p-abroad"], lit: "out-n2" };
+        if (!s.loc) return null;
+        const map = { to: ["d", "p-eq-xiii", "out-d"], from: ["r", "p-eq-xii", "out-r"], else: ["o", "p-neither", "out-o"] }[s.loc];
+        return { out: map[0], path: ["q-ix", "p-yes", "q-xiii", "p-within", "q-cmp", map[1]], lit: map[2] };
+      },
+      showItem(it, s) { return it.needs !== "noReason" || !s.askReason; },
+      avoided(s, r) { return ["d", "r", "o"].includes(r.out) && s.askReason ? "Asking the reason (x) keeps out people forced to move for reasons outside the Guiding Principles." : ""; }
+    },
+    iross: {
+      order: ["cit", "birth", "rec"],
+      inA(s) { return s.cit === "stateless" || (s.cit === "unknown" && s.countUnknown); },
+      visible(key, s) {
+        if (key === "cit") return true;
+        if (key === "birth") return this.inA(s);
+        if (key === "rec") return s.recognition && this.inA(s) && !!s.birth;
+        return false;
+      },
+      resolve(s) {
+        if (s.cit === "census") return { out: "c1", path: ["q-cit", "p-census"], lit: "out-c1" };
+        if (s.cit === "foreign") return { out: "c2", path: ["q-cit", "p-foreign"], lit: "out-c2" };
+        if (s.cit === "unknown" && !s.countUnknown) return { out: "pa", path: ["q-cit", "p-unknown"], lit: "out-pa" };
+        if (!this.inA(s) || !s.birth) return null;
+        if (s.recognition && !s.rec) return null;
+        const first = s.cit === "unknown" ? ["q-cit", "p-unknown"] : ["q-cit", "p-stateless", "q-birth"];
+        const b = { census: ["anb", "p-b-census", "out-anb"], foreign: ["afb", "p-b-foreign", "out-afb"], unknown: ["aunk", null, null] }[s.birth];
+        const r = { out: b[0], path: first.concat(b[1] && s.cit !== "unknown" ? [b[1]] : []), lit: b[2] };
+        if (s.cit === "unknown") r.extraInclusion = { text: "Recorded as unknown citizenship, possibly because of item non-response, but counted here as category A.", ref: "P&R para 5.116", src: "added", flag: true };
+        if (s.recognition) r.sub = s.rec === "yes"
+          ? "Category B: persons with a recognised statelessness status (IROSS para 64a)."
+          : "Category C: persons without a recognised nationality status, including unrecognised stateless persons (IROSS para 64b)." + (s.birth === "foreign" ? " Being foreign-born is a link to another country, so category Ci." : "");
+        return r;
+      },
+      showItem() { return true; },
+      avoided() { return ""; }
+    }
+  };
+
+  // ---------- build one tab
+  function buildPanel(key) {
+    const F = D.frameworks[key], L = LOGIC[key];
+    const state = {};
+    F.toggles.forEach(t => state[t.key] = t.def);
+    L.order.forEach(k => state[k] = null);
+
+    const panel = el("div", { "data-panel": key, hidden: "" });
+    const card = el("section", { class: "card" });
+    card.appendChild(el("h2", { text: F.heading }));
+    card.appendChild(el("p", { class: "lead", text: F.lead }));
+    const toggles = el("div", { class: "toggles" });
+    F.toggles.forEach(t => {
+      const cb = el("input", { type: "checkbox" }); cb.checked = t.def;
+      cb.addEventListener("change", () => { state[t.key] = cb.checked; L.order.slice(1).forEach(k => state[k] = null); update(); });
+      toggles.appendChild(el("label", {}, [cb, " " + t.label]));
+    });
+    card.appendChild(toggles);
+    const legend = el("p", { class: "legend" }, [el("span", { class: "src src-draft", text: "In draft" }), " already in the CM draft    ", el("span", { class: "src src-added", text: "Suggested" }), " suggested addition"]);
+    card.appendChild(legend);
+
+    const grid = el("div", { class: "grid" });
+    const left = el("div");
+    const qbox = el("div"); const result = el("div", { class: "result-wrap", "aria-live": "polite" });
+    left.appendChild(qbox);
+    left.appendChild(el("button", { class: "reset", type: "button", text: "Start again", onclick: () => { L.order.forEach(k => state[k] = null); update(); } }));
+    left.appendChild(result);
+    const right = el("div");
+    right.appendChild(el("p", { class: "hint", text: D.hint }));
+    const tree = el("figure", { class: "tree" });
+    const details = el("div", { class: "details", "aria-live": "polite" }, [el("p", { class: "empty", text: "Click a box in the tree to read its explanation here." })]);
+    right.appendChild(tree); right.appendChild(details);
+    const fig = { irrs: "Fig1_census_IRRS_identification_tree.png", iris: "Fig2_census_IRIS_identification_tree.png", iross: "Fig3_census_IROSS_identification_tree.png" }[key];
+    right.appendChild(el("p", { class: "dl" }, [el("a", { href: "img/" + fig, download: "", text: "Download the tree as an image" })]));
+    grid.appendChild(left); grid.appendChild(right);
+    card.appendChild(grid);
+
+    const extra = el("div", { class: "note" });
+    extra.appendChild(el("div", { class: "tip-title", text: F.extra.title }));
+    const ul = el("ul"); F.extra.items.forEach(it => ul.appendChild(itemLi(it))); extra.appendChild(ul);
+    card.appendChild(extra);
+    panel.appendChild(card);
+
+    function renderQuestions() {
+      qbox.innerHTML = "";
+      F.questions.forEach(q => {
+        if (!L.visible(q.key, state)) return;
+        const c = el("div", { class: "q" });
+        c.appendChild(el("div", {}, [el("span", { class: "q-title", text: q.title }), el("span", { class: "q-meta", text: q.meta })]));
+        const opts = el("div", { class: "opts", role: "group", "aria-label": q.title });
+        q.opts.forEach(([v, lab]) => opts.appendChild(el("button", {
+          class: state[q.key] === v ? "on" : "", "aria-pressed": String(state[q.key] === v), text: lab,
+          onclick: () => { state[q.key] = v; L.order.slice(L.order.indexOf(q.key) + 1).forEach(k => state[k] = null); update(); }
+        })));
+        c.appendChild(opts); qbox.appendChild(c);
       });
-      card.appendChild(opts);
-      box.appendChild(card);
-    });
-  }
-
-  function errList(cls, heading, items) {
-    if (!items.length) return null;
-    const ul = el("ul");
-    items.forEach(it => {
-      const li = el("li", { class: it.flag ? "flag" : "" }, [it.text + " "]);
-      if (it.ref) li.appendChild(el("span", { class: "ref", text: "(" + it.ref + ")" }));
-      ul.appendChild(li);
-    });
-    return el("div", { class: "err " + cls }, [el("h3", { text: heading }), ul]);
-  }
-
-  function renderResult(r) {
-    const box = document.getElementById("result");
-    box.innerHTML = "";
-    if (!r) {
-      box.appendChild(el("div", { class: "empty", text: "Answer the questions to see where a respondent ends up, and who could be wrongly counted or missed at that point." }));
-      return;
     }
-    const o = D.outcomes[r.out];
-    const summary = r.byBirth ? "Citizen by birth, so correctly not counted as a person with a refugee background." : o.summary;
-    box.appendChild(el("div", { class: "result " + o.tone }, [
-      el("div", { class: "r-title", text: o.title }),
-      el("div", { class: "q-meta", text: o.stock }),
-      el("p", { text: summary })
-    ]));
-    let inc = o.inclusion.filter(i => !i.needsNoIII || !state.collectIII).map(i => Object.assign({}, i, { flag: i.needsNoIII }));
-    const avoided = o.inclusion.filter(i => i.needsNoIII && state.collectIII);
-    const errs = el("div", { class: "errs" });
-    const a = errList("inc", "Inclusion errors: wrongly counted here", inc);
-    const b = errList("exc", r.lit === "out-o2" || r.lit === "out-o4" ? "Exclusion errors linked to this stock" : "Exclusion errors: should be counted but end up here", o.exclusion);
-    if (a) errs.appendChild(a);
-    if (b) errs.appendChild(b);
-    if (!a && !b) errs.appendChild(el("div", { class: "empty", text: "No inclusion or exclusion errors at this point." }));
-    if (avoided.length) errs.appendChild(el("div", { class: "empty", text: "Avoided because (iii) is collected: citizens by birth born abroad who fled are kept out of refugee background." }));
-    box.appendChild(errs);
-  }
+    function errBlock(cls, heading, items) {
+      if (!items.length) return null;
+      const u = el("ul"); items.forEach(it => u.appendChild(itemLi(it)));
+      return el("div", { class: "err " + cls }, [el("h3", { text: heading }), u]);
+    }
+    function renderResult(r) {
+      result.innerHTML = "";
+      if (!r) { result.appendChild(el("div", { class: "empty", text: "Answer the questions to see where a person ends up, and who could be wrongly counted or missed at that point." })); return; }
+      const o = F.outcomes[r.out];
+      const box = el("div", { class: "result " + o.tone }, [el("div", { class: "r-title", text: o.title }), el("div", { class: "q-meta", text: o.stock }), el("p", { text: r.note || o.summary })]);
+      if (r.sub) box.appendChild(el("p", { class: "sub", text: r.sub }));
+      result.appendChild(box);
+      let inc = o.inclusion.filter(it => L.showItem(it, state)).map(it => Object.assign({}, it, { flag: !!it.needs }));
+      if (r.extraInclusion) inc = [r.extraInclusion].concat(inc);
+      const errs = el("div", { class: "errs" });
+      const a = errBlock("inc", "Inclusion errors: wrongly counted here", inc);
+      const isStock = o.tone === "identified";
+      const b = errBlock("exc", isStock ? "Exclusion errors linked to this outcome" : "Exclusion errors: should be counted but end up here", o.exclusion);
+      if (a) errs.appendChild(a); if (b) errs.appendChild(b);
+      if (!a && !b) errs.appendChild(el("div", { class: "empty", text: "No inclusion or exclusion errors at this point." }));
+      const av = L.avoided(state, r); if (av) errs.appendChild(el("div", { class: "empty", text: av }));
+      result.appendChild(errs);
+    }
+    function highlight(r) {
+      const svg = tree.querySelector("svg"); if (!svg) return;
+      svg.querySelectorAll("g.lit").forEach(g => g.classList.remove("lit"));
+      tree.classList.toggle("has-path", !!(r && r.lit));
+      if (!r) return;
+      r.path.concat(r.lit ? [r.lit] : []).forEach(id => { const g = svg.querySelector("#" + key + "-" + id); if (g) g.classList.add("lit"); });
+    }
+    function update() { renderQuestions(); const r = L.resolve(state); renderResult(r); highlight(r); }
 
-  function highlightTree(r) {
-    const svg = document.querySelector("#tree svg");
-    if (!svg) return;
-    svg.querySelectorAll("g.lit").forEach(g => g.classList.remove("lit"));
-    const tree = document.getElementById("tree");
-    tree.classList.toggle("has-path", !!(r && r.lit));
-    if (!r) return;
-    r.path.concat(r.lit ? [r.lit] : []).forEach(id => { const g = svg.getElementById ? svg.getElementById(id) : svg.querySelector("#" + id); if (g) g.classList.add("lit"); });
-  }
-
-  function update() {
-    renderQuestions();
-    const r = resolve();
-    renderResult(r);
-    highlightTree(r);
-  }
-
-  // Scenario toggles
-  document.getElementById("t-iii").addEventListener("change", e => { state.collectIII = e.target.checked; state.q3 = null; state.q5 = null; update(); });
-  document.getElementById("t-stateless").addEventListener("change", e => { state.statelessCoded = e.target.checked; state.q5 = null; update(); });
-  document.getElementById("reset").addEventListener("click", () => { ORDER.forEach(k => state[k] = null); update(); });
-
-  // Tree: inline SVG so the path can be highlighted; fall back to the PNG offline
-  fetch("assets/tree.svg").then(r => r.ok ? r.text() : Promise.reject()).then(txt => {
-    const holder = document.getElementById("tree");
-    holder.innerHTML = txt;
-    const svg = holder.querySelector("svg");
-    svg.removeAttribute("width"); svg.removeAttribute("height");
-    svg.setAttribute("aria-label", "Decision tree from census questions to IRRS stocks");
-    wireTips();
+    // explanations on tree boxes
+    function tipFor(id) {
+      if (F.tips[id]) return F.tips[id];
+      const m = id.match(/^(out|inc|exc)-(.+)$/);
+      if (m && F.outcomes[m[2]]) {
+        const o = F.outcomes[m[2]];
+        if (m[1] === "out") return { title: o.title + (o.stock ? ": " + o.stock.toLowerCase() : ""), body: o.summary };
+        const items = (m[1] === "inc" ? o.inclusion : o.exclusion);
+        const label = m[1] === "inc" ? "Wrongly counted here (inclusion errors)" : (o.tone === "identified" ? "Exclusion errors linked to this outcome" : "Missed, ending up here (exclusion errors)");
+        return { title: label, list: items.length ? items : [{ text: "None at this point." }] };
+      }
+      if (id === F.extra.id) return { title: F.extra.title, list: F.extra.items };
+      return null;
+    }
+    function tipNode(t, cls) {
+      const n = el("div", { class: cls }, [el("div", { class: "tip-title", text: t.title })]);
+      if (t.body) n.appendChild(el("p", { text: t.body }));
+      if (t.list) { const u = el("ul"); t.list.forEach(it => u.appendChild(itemLi(it))); n.appendChild(u); }
+      return n;
+    }
+    const tip = document.getElementById("tooltip");
+    function boxId(target) {
+      const g = target.closest && target.closest("g[id]");
+      if (!g || !g.id.startsWith(key + "-")) return null;
+      const id = g.id.slice(key.length + 1);
+      return tipFor(id) ? id : null;
+    }
+    function wire() {
+      const svg = tree.querySelector("svg");
+      svg.querySelectorAll("g[id]").forEach(g => { if (boxId(g)) { g.classList.add("tip-target"); g.setAttribute("tabindex", "0"); } });
+      svg.addEventListener("mousemove", e => {
+        const id = boxId(e.target); if (!id) { tip.hidden = true; return; }
+        tip.innerHTML = ""; tip.appendChild(tipNode(tipFor(id), "tip-body")); tip.hidden = false;
+        const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+        let x = e.clientX + pad, y = e.clientY + pad;
+        if (x + w > window.innerWidth - 8) x = e.clientX - w - pad;
+        if (y + h > window.innerHeight - 8) y = e.clientY - h - pad;
+        tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
+      });
+      svg.addEventListener("mouseleave", () => tip.hidden = true);
+      const pin = id => {
+        details.innerHTML = ""; details.appendChild(tipNode(tipFor(id), "pinned"));
+        svg.querySelectorAll("g.pinned-box").forEach(g => g.classList.remove("pinned-box"));
+        const g = svg.querySelector("#" + key + "-" + id); if (g) g.classList.add("pinned-box");
+      };
+      svg.addEventListener("click", e => { const id = boxId(e.target); if (id) { pin(id); tip.hidden = true; } });
+      svg.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { const id = boxId(e.target); if (id) { e.preventDefault(); pin(id); } } });
+    }
+    fetch("assets/tree-" + key + ".svg").then(r => r.ok ? r.text() : Promise.reject()).then(txt => {
+      tree.innerHTML = txt;
+      const svg = tree.querySelector("svg"); svg.removeAttribute("width"); svg.removeAttribute("height");
+      svg.setAttribute("aria-label", "Decision tree: census questions to " + F.label + " populations");
+      wire(); update();
+    }).catch(() => { tree.innerHTML = '<img src="img/' + fig + '" alt="Decision tree: census questions to ' + F.label + ' populations" style="width:100%">'; });
     update();
-  }).catch(() => {
-    document.getElementById("tree").innerHTML = '<img src="img/Fig1_census_IRRS_identification_tree.png" alt="Decision tree from census questions to IRRS stocks" style="width:100%">';
-  });
-
-  // Explanations on every tree box: hover for a tooltip, click to pin in the panel
-  function tipFor(id) {
-    if (D.tips[id]) return D.tips[id];
-    const m = id.match(/^(out|inc|exc)-(o\d)$/);
-    if (m) {
-      const o = D.outcomes[m[2]];
-      if (m[1] === "out") return { title: o.title, body: o.summary };
-      const items = m[1] === "inc" ? o.inclusion : o.exclusion;
-      const label = m[1] === "inc" ? "Wrongly counted here (inclusion errors)" : (m[2] === "o2" || m[2] === "o4" ? "Missed from this stock (exclusion errors)" : "Missed, ending up here (exclusion errors)");
-      return { title: label + ": " + o.title.toLowerCase(), list: items.length ? items : [{ text: "None at this point." }] };
-    }
-    if (id === "ret") return { title: "Persons returned after seeking protection", body: D.returnees };
-    return null;
-  }
-  function tipNode(t, cls) {
-    const n = el("div", { class: cls });
-    n.appendChild(el("div", { class: "tip-title", text: t.title }));
-    if (t.body) n.appendChild(el("p", { text: t.body }));
-    if (t.list) {
-      const ul = el("ul");
-      t.list.forEach(it => { const li = el("li", {}, [it.text + " "]); if (it.ref) li.appendChild(el("span", { class: "ref", text: "(" + it.ref + ")" })); ul.appendChild(li); });
-      n.appendChild(ul);
-    }
-    return n;
-  }
-  const tip = document.getElementById("tooltip");
-  function boxId(target) {
-    const g = target.closest && target.closest("g[id]");
-    return g && tipFor(g.id) ? g.id : null;
-  }
-  function wireTips() {
-    const svg = document.querySelector("#tree svg");
-    if (!svg) return;
-    svg.querySelectorAll("g[id]").forEach(g => { if (tipFor(g.id)) { g.classList.add("tip-target"); g.setAttribute("tabindex", "0"); } });
-    svg.addEventListener("mousemove", e => {
-      const id = boxId(e.target);
-      if (!id) { tip.hidden = true; return; }
-      tip.innerHTML = ""; tip.appendChild(tipNode(tipFor(id), "tip-body"));
-      tip.hidden = false;
-      const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
-      let x = e.clientX + pad, y = e.clientY + pad;
-      if (x + w > window.innerWidth - 8) x = e.clientX - w - pad;
-      if (y + h > window.innerHeight - 8) y = e.clientY - h - pad;
-      tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
-    });
-    svg.addEventListener("mouseleave", () => { tip.hidden = true; });
-    const pin = id => {
-      const panel = document.getElementById("details");
-      panel.innerHTML = ""; panel.appendChild(tipNode(tipFor(id), "pinned"));
-      svg.querySelectorAll("g.pinned-box").forEach(g => g.classList.remove("pinned-box"));
-      const g = svg.getElementById ? svg.getElementById(id) : svg.querySelector("#" + id);
-      if (g) g.classList.add("pinned-box");
-    };
-    svg.addEventListener("click", e => { const id = boxId(e.target); if (id) { pin(id); tip.hidden = true; } });
-    svg.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { const id = boxId(e.target); if (id) { e.preventDefault(); pin(id); } } });
+    return panel;
   }
 
-  // Framework tabs
-  document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => {
-    if (b.disabled) return;
-    document.querySelectorAll("nav.tabs button").forEach(x => x.classList.toggle("active", x === b));
-    document.querySelectorAll("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== b.dataset.tab);
-  }));
-
-  document.getElementById("returnees").textContent = D.returnees;
-  document.getElementById("hint").textContent = D.hint;
-  update();
+  // ---------- tabs
+  const main = document.getElementById("panels");
+  const nav = document.getElementById("tabs");
+  const keys = Object.keys(D.frameworks);
+  keys.forEach(k => main.appendChild(buildPanel(k)));
+  function show(k) {
+    nav.querySelectorAll("button").forEach(b => { const on = b.dataset.tab === k; b.classList.toggle("active", on); b.setAttribute("aria-selected", String(on)); });
+    main.querySelectorAll("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== k);
+    document.getElementById("tooltip").hidden = true;
+    if (location.hash !== "#" + k) history.replaceState(null, "", "#" + k);
+  }
+  keys.forEach(k => nav.appendChild(el("button", { "data-tab": k, role: "tab", text: D.frameworks[k].label, onclick: () => show(k) })));
+  const fromHash = () => show(keys.includes(location.hash.slice(1)) ? location.hash.slice(1) : "irrs");
+  window.addEventListener("hashchange", fromHash);
+  fromHash();
 })();

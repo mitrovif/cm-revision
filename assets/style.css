@@ -84,3 +84,14 @@ footer { color: var(--muted); font-size: 13px; padding: 8px 0 32px; }
 .details .empty { padding: 0; margin: 0; }
 .dl { font-size: 13px; margin: 10px 0 0; }
 .dl a { color: var(--purple); }
+
+.src { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 1px 7px; margin-right: 2px; vertical-align: 1px; }
+.src-draft { background: #F1EFE8; color: #444441; border: 1px solid #B4B2A9; }
+.src-added { background: #EEEDFE; color: #3C3489; border: 1px solid #AFA9EC; }
+.tooltip .src-draft { background: #444441; color: #F1EFE8; border-color: #5F5E5A; }
+.tooltip .src-added { background: #3C3489; color: #EEEDFE; border-color: #534AB7; }
+.legend { font-size: 13px; color: var(--muted); margin: -6px 0 14px; }
+.result-wrap { margin-top: 16px; }
+.result p.sub { color: #085041; font-weight: 600; }
+.note ul { margin: 6px 0 0; padding-left: 18px; }
+.note .ref { color: var(--muted); font-size: 12px; }

@@ -12,50 +12,13 @@
 <header>
   <div class="wrap">
     <h1>CM revision: who census questions identify</h1>
-    <nav class="tabs" aria-label="Framework">
-      <button class="active" data-tab="irrs">IRRS</button>
-      <button data-tab="iris" disabled title="Coming soon">IRIS</button>
-      <button data-tab="iross" disabled title="Coming soon">IROSS</button>
-    </nav>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Framework"></nav>
   </div>
 </header>
 
-<main class="wrap">
-<div data-panel="irrs">
+<main class="wrap" id="panels"></main>
 
-  <section class="card">
-    <h2>Follow a respondent through the census questions</h2>
-    <p class="lead">Answer the census questions on the left, or explore the tree on the right. You will see which IRRS stock a person ends up in, and who could be wrongly counted or missed along the way.</p>
-
-    <div class="toggles">
-      <label><input type="checkbox" id="t-iii" checked> Census collects acquisition of citizenship (iii)</label>
-      <label><input type="checkbox" id="t-stateless" checked> Citizenship (ii) mapping includes stateless and unknown</label>
-    </div>
-
-    <div class="grid">
-      <div>
-        <div id="questions"></div>
-        <button class="reset" id="reset" type="button">Start again</button>
-        <div id="result" style="margin-top:16px" aria-live="polite"></div>
-      </div>
-      <div>
-        <p class="hint" id="hint"></p>
-        <figure id="tree" class="tree" style="margin:0"></figure>
-        <div id="details" class="details" aria-live="polite"><p class="empty">Click a box in the tree to read its explanation here.</p></div>
-        <p class="dl"><a href="img/Fig1_census_IRRS_identification_tree.png" download>Download the tree as an image</a></p>
-      </div>
-    </div>
-
-    <div class="note" id="returnees"></div>
-  </section>
-
-</div>
-
-<div data-panel="iris" hidden><section class="card soon">IRIS analysis coming soon.</section></div>
-<div data-panel="iross" hidden><section class="card soon">IROSS analysis coming soon.</section></div>
-</main>
-
-<footer class="wrap">Based on UN Principles and Recommendations for Population and Housing Censuses, Revision 4, and the International Recommendations on Refugee Statistics (IRRS).</footer>
+<footer class="wrap">Based on the UN Principles and Recommendations for Population and Housing Censuses, Revision 4, and the International Recommendations on Refugee Statistics (IRRS), IDP Statistics (IRIS) and Statelessness Statistics (IROSS). Errors are marked as already in the Compilers&#39; Manual draft or as suggested additions.</footer>
 
 <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
 <script src="assets/data.js"></script>
