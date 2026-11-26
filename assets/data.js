@@ -64,25 +64,23 @@ window.CM_DATA = {
     }
   },
   returnees: "Persons returned from abroad after seeking international protection are not reached by any branch. Response (e), deportation or involuntary return, picks up some returned asylum seekers, including rejected ones, but also deportees who never sought protection, and misses voluntary repatriation (IRRS paras 95 to 97).",
-  subgroups: [
-    { stock: "protection", name: "Prospective asylum seekers, asylum seekers", identified: "Yes, not separately", inclusion: "", exclusion: "" },
-    { stock: "protection", name: "Persons with determined protection status", identified: "Yes, if reason (d)", inclusion: "", exclusion: "Another main reason given: derivative family, sur place who moved, secondary movers, later voluntary move" },
-    { stock: "protection", name: "Others in refugee-like situations", identified: "Yes, if reason (d)", inclusion: "", exclusion: "As above" },
-    { stock: "protection", name: "Children born in the country, no host citizenship", identified: "No", inclusion: "", exclusion: "Native-born; only via household link to a parent" },
-    { stock: "protection", name: "Refugees sur place who never moved", identified: "No", inclusion: "", exclusion: "No international move" },
-    { stock: "protection", name: "Stateless refugees", identified: "Only if (ii) includes stateless", inclusion: "", exclusion: "Missed if (ii) coded foreign only" },
-    { stock: "protection", name: "Not in this stock", identified: "", inclusion: "Out-of-scope forced moves (disaster, hardship); ceased protection, not naturalised", exclusion: "" },
-    { stock: "background", name: "Naturalised former refugees", identified: "Yes, if reason (d)", inclusion: "Never held protection status", exclusion: "Later voluntary move" },
-    { stock: "background", name: "Children and descendants with citizenship", identified: "Household link only", inclusion: "", exclusion: "Not living with, or parent not identified" },
-    { stock: "background", name: "Reunified family members", identified: "No", inclusion: "", exclusion: "Report family reunification" },
-    { stock: "background", name: "Others, incl. ceased protection", identified: "Wrong stock", inclusion: "", exclusion: "Counted as in need of international protection" },
-    { stock: "background", name: "Not in this stock", identified: "", inclusion: "Citizens by birth born abroad who fled, if (iii) not collected", exclusion: "" },
-    { stock: "returned", name: "Repatriating refugees; other returnees", identified: "No", inclusion: "", exclusion: "Not covered by Box A.2" },
-    { stock: "returned", name: "Repatriating asylum seekers, incl. rejected", identified: "Partly, via reason (e)", inclusion: "Deportees who never sought protection", exclusion: "Voluntary returns" }
-  ],
-  stocks: {
-    protection: "Persons in need of international protection (IRRS paras 90 to 92)",
-    background: "Persons with a refugee background (IRRS paras 93 to 94)",
-    returned: "Persons returned after seeking protection (IRRS paras 95 to 97)"
+  hint: "Hover over any box to see what it means. Click it to keep the explanation open.",
+  tips: {
+    "start": { title: "Census population", body: "Everyone counted in the census. Follow the answers down the tree to see where each person is classified." },
+    "q-i": { title: "(i) Country of birth", body: "Core P&R topic, asked of everyone. Only people born abroad have the international move that the reason question asks about." },
+    "p-born-here": { title: "Born in the census country", body: "Not counted in any IRRS stock, even if they are refugees' children or refugees sur place." },
+    "p-abroad": { title: "Born abroad", body: "Next: citizenship." },
+    "q-ii": { title: "(ii) Country of citizenship", body: "Core P&R topic. Separates foreign citizens and stateless people from citizens of the census country. P&R has separate codes for stateless and unknown (para 5.116)." },
+    "p-foreign": { title: "Foreign, stateless or unknown citizenship", body: "May be in need of international protection; the reason question decides. If the mapping says \"foreign country\" only, stateless refugees drop out here." },
+    "p-cit-census": { title: "Citizen of the census country", body: "May have a refugee background if they became a citizen after birth." },
+    "q-iii": { title: "(iii) Acquisition of citizenship", body: "Core in the IRRS, additional in P&R Rev. 4. Separates citizens by birth from naturalised citizens. If it is not asked, citizens by birth born abroad can be wrongly counted as having a refugee background." },
+    "p-bybirth": { title: "Citizen by birth", body: "Correctly not counted: a citizen by birth was never a refugee in their own country." },
+    "p-natur": { title: "Citizen after birth", body: "Became a citizen through naturalisation, marriage, declaration or option. Next: reason for moving." },
+    "q-va": { title: "(v) Main reason for the most recent move", body: "Recommended by the IRRS (additional topic in P&R Rev. 4). Records one main reason, for the most recent move only, as the person reports it." },
+    "q-vb": { title: "(v) Main reason for the most recent move", body: "Recommended by the IRRS (additional topic in P&R Rev. 4). Records one main reason, for the most recent move only, as the person reports it." },
+    "p-d-a": { title: "(d) Forced displacement", body: "Refugees, asylum seekers, temporary protection, others. Counted as a person in need of international protection." },
+    "p-d-b": { title: "(d) Forced displacement", body: "Counted as a person with a refugee background." },
+    "p-other-a": { title: "Any other reason", body: "Work, study, family, deportation or other. Not counted, even if the person holds refugee status." },
+    "p-other-b": { title: "Any other reason", body: "Work, study, family, deportation or other. Not counted, even if the person is a former refugee." }
   }
 };

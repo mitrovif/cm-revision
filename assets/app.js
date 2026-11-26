@@ -139,41 +139,69 @@
     holder.innerHTML = txt;
     const svg = holder.querySelector("svg");
     svg.removeAttribute("width"); svg.removeAttribute("height");
-    svg.setAttribute("role", "img"); svg.setAttribute("aria-label", "Decision tree from census questions to IRRS stocks");
+    svg.setAttribute("aria-label", "Decision tree from census questions to IRRS stocks");
+    wireTips();
     update();
   }).catch(() => {
     document.getElementById("tree").innerHTML = '<img src="img/Fig1_census_IRRS_identification_tree.png" alt="Decision tree from census questions to IRRS stocks" style="width:100%">';
   });
 
-  // Sub-group table with filters
-  const tState = { stock: "all", err: "all", q: "" };
-  function renderTable() {
-    const tb = document.querySelector("#subgroups tbody");
-    tb.innerHTML = "";
-    const q = tState.q.toLowerCase();
-    Object.keys(D.stocks).forEach(stock => {
-      if (tState.stock !== "all" && tState.stock !== stock) return;
-      const rows = D.subgroups.filter(r => r.stock === stock)
-        .filter(r => tState.err === "all" || (tState.err === "inc" ? r.inclusion : r.exclusion))
-        .filter(r => !q || [r.name, r.identified, r.inclusion, r.exclusion].join(" ").toLowerCase().includes(q));
-      if (!rows.length) return;
-      tb.appendChild(el("tr", { class: "group" }, [el("td", { colspan: "4", text: D.stocks[stock] })]));
-      rows.forEach(r => tb.appendChild(el("tr", {}, [
-        el("td", { text: r.name }), el("td", { text: r.identified }),
-        el("td", { class: "inc", text: r.inclusion }), el("td", { class: "exc", text: r.exclusion })
-      ])));
+  // Explanations on every tree box: hover for a tooltip, click to pin in the panel
+  function tipFor(id) {
+    if (D.tips[id]) return D.tips[id];
+    const m = id.match(/^(out|inc|exc)-(o\d)$/);
+    if (m) {
+      const o = D.outcomes[m[2]];
+      if (m[1] === "out") return { title: o.title, body: o.summary };
+      const items = m[1] === "inc" ? o.inclusion : o.exclusion;
+      const label = m[1] === "inc" ? "Wrongly counted here (inclusion errors)" : (m[2] === "o2" || m[2] === "o4" ? "Missed from this stock (exclusion errors)" : "Missed, ending up here (exclusion errors)");
+      return { title: label + ": " + o.title.toLowerCase(), list: items.length ? items : [{ text: "None at this point." }] };
+    }
+    if (id === "ret") return { title: "Persons returned after seeking protection", body: D.returnees };
+    return null;
+  }
+  function tipNode(t, cls) {
+    const n = el("div", { class: cls });
+    n.appendChild(el("div", { class: "tip-title", text: t.title }));
+    if (t.body) n.appendChild(el("p", { text: t.body }));
+    if (t.list) {
+      const ul = el("ul");
+      t.list.forEach(it => { const li = el("li", {}, [it.text + " "]); if (it.ref) li.appendChild(el("span", { class: "ref", text: "(" + it.ref + ")" })); ul.appendChild(li); });
+      n.appendChild(ul);
+    }
+    return n;
+  }
+  const tip = document.getElementById("tooltip");
+  function boxId(target) {
+    const g = target.closest && target.closest("g[id]");
+    return g && tipFor(g.id) ? g.id : null;
+  }
+  function wireTips() {
+    const svg = document.querySelector("#tree svg");
+    if (!svg) return;
+    svg.querySelectorAll("g[id]").forEach(g => { if (tipFor(g.id)) { g.classList.add("tip-target"); g.setAttribute("tabindex", "0"); } });
+    svg.addEventListener("mousemove", e => {
+      const id = boxId(e.target);
+      if (!id) { tip.hidden = true; return; }
+      tip.innerHTML = ""; tip.appendChild(tipNode(tipFor(id), "tip-body"));
+      tip.hidden = false;
+      const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+      let x = e.clientX + pad, y = e.clientY + pad;
+      if (x + w > window.innerWidth - 8) x = e.clientX - w - pad;
+      if (y + h > window.innerHeight - 8) y = e.clientY - h - pad;
+      tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
     });
-    if (!tb.children.length) tb.appendChild(el("tr", {}, [el("td", { colspan: "4", class: "empty", text: "No sub-groups match these filters." })]));
+    svg.addEventListener("mouseleave", () => { tip.hidden = true; });
+    const pin = id => {
+      const panel = document.getElementById("details");
+      panel.innerHTML = ""; panel.appendChild(tipNode(tipFor(id), "pinned"));
+      svg.querySelectorAll("g.pinned-box").forEach(g => g.classList.remove("pinned-box"));
+      const g = svg.getElementById ? svg.getElementById(id) : svg.querySelector("#" + id);
+      if (g) g.classList.add("pinned-box");
+    };
+    svg.addEventListener("click", e => { const id = boxId(e.target); if (id) { pin(id); tip.hidden = true; } });
+    svg.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { const id = boxId(e.target); if (id) { e.preventDefault(); pin(id); } } });
   }
-  function chips(id, key) {
-    document.querySelectorAll("#" + id + " .chip").forEach(c => c.addEventListener("click", () => {
-      tState[key] = c.dataset.v;
-      document.querySelectorAll("#" + id + " .chip").forEach(x => { x.classList.toggle("on", x === c); x.setAttribute("aria-pressed", x === c ? "true" : "false"); });
-      renderTable();
-    }));
-  }
-  chips("f-stock", "stock"); chips("f-err", "err");
-  document.getElementById("f-search").addEventListener("input", e => { tState.q = e.target.value; renderTable(); });
 
   // Framework tabs
   document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => {
@@ -183,6 +211,6 @@
   }));
 
   document.getElementById("returnees").textContent = D.returnees;
+  document.getElementById("hint").textContent = D.hint;
   update();
-  renderTable();
 })();

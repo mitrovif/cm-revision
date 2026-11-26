@@ -8,7 +8,7 @@ Live page: https://mitrovif.github.io/cm-revision/
 
 - **Follow a respondent:** answer the census questions one by one; the decision tree highlights the path and a panel shows the IRRS stock and the inclusion and exclusion errors at that point.
 - **Scenario switches:** see what changes when acquisition of citizenship (iii) is not collected, or when the citizenship mapping leaves out stateless and unknown.
-- **Sub-group table:** filter by IRRS stock or error type, or search.
+- **Explain any box:** hover over a box in the tree to see what it means; click to keep the explanation open (works on touch screens too).
 
 IRIS and IROSS tabs are placeholders for the next analyses.
 
@@ -16,13 +16,12 @@ IRIS and IROSS tabs are placeholders for the next analyses.
 
 ```
 index.html              page layout
-assets/data.js          all wording: outcomes, errors, sub-group table (edit here)
-assets/app.js           explorer logic, tree highlighting, table filters
+assets/data.js          all wording: outcomes, errors, box explanations (edit here)
+assets/app.js           explorer logic, tree highlighting, hover and click explanations
 assets/style.css        styles
 assets/tree.svg         decision tree (generated)
-assets/table.svg        sub-group table (generated)
-img/*.png               PNG versions of the figure and table (generated)
-scripts/build_figures.py  generates the SVGs and PNGs
+img/*.png               PNG version of the tree (generated)
+scripts/build_figures.py  generates the tree SVG and PNG
 ```
 
 ## Rebuilding the figures

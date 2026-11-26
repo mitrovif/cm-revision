@@ -66,3 +66,21 @@ details { margin-top: 8px; }
 summary { cursor: pointer; color: var(--purple); font-size: 14px; }
 footer { color: var(--muted); font-size: 13px; padding: 8px 0 32px; }
 .soon { padding: 40px 20px; text-align: center; color: var(--muted); }
+
+.hint { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+.tree g.tip-target { cursor: pointer; }
+.tree g.tip-target:hover rect, .tree g.tip-target:focus rect { stroke-width: 2.2; }
+.tree g.tip-target:focus { outline: none; }
+.tree g.pinned-box rect { stroke: #D85A30 !important; stroke-width: 3 !important; }
+.tooltip { position: fixed; z-index: 10; max-width: 320px; background: #2C2C2A; color: #FAF9F5; border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.45; pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.tooltip p { margin: 4px 0 0; }
+.tooltip ul { margin: 6px 0 0; padding-left: 16px; }
+.tooltip .ref { color: #B4B2A9; }
+.tip-title { font-weight: 600; }
+.details { margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--card); font-size: 14px; }
+.details p { margin: 6px 0 0; }
+.details ul { margin: 6px 0 0; padding-left: 18px; }
+.details .ref { color: var(--muted); font-size: 12px; }
+.details .empty { padding: 0; margin: 0; }
+.dl { font-size: 13px; margin: 10px 0 0; }
+.dl a { color: var(--purple); }

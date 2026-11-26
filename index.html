@@ -25,7 +25,7 @@
 
   <section class="card">
     <h2>Follow a respondent through the census questions</h2>
-    <p class="lead">Pick answers to the P&amp;R census topics and the IRRS reason question. The tree highlights the path, and the panel shows which IRRS stock the person ends up in and who could be wrongly counted or missed there.</p>
+    <p class="lead">Answer the census questions on the left, or explore the tree on the right. You will see which IRRS stock a person ends up in, and who could be wrongly counted or missed along the way.</p>
 
     <div class="toggles">
       <label><input type="checkbox" id="t-iii" checked> Census collects acquisition of citizenship (iii)</label>
@@ -38,40 +38,17 @@
         <button class="reset" id="reset" type="button">Start again</button>
         <div id="result" style="margin-top:16px" aria-live="polite"></div>
       </div>
-      <figure id="tree" class="tree" style="margin:0"></figure>
+      <div>
+        <p class="hint" id="hint"></p>
+        <figure id="tree" class="tree" style="margin:0"></figure>
+        <div id="details" class="details" aria-live="polite"><p class="empty">Click a box in the tree to read its explanation here.</p></div>
+        <p class="dl"><a href="img/Fig1_census_IRRS_identification_tree.png" download>Download the tree as an image</a></p>
+      </div>
     </div>
 
     <div class="note" id="returnees"></div>
   </section>
 
-  <section class="card">
-    <h2>Inclusion and exclusion errors by IRRS sub-group</h2>
-    <p class="lead">Inclusion errors are people wrongly counted; exclusion errors are people who should be counted but are missed.</p>
-    <div class="filters">
-      <div id="f-stock" role="group" aria-label="Filter by stock">
-        <button class="chip on" data-v="all" aria-pressed="true">All stocks</button>
-        <button class="chip" data-v="protection" aria-pressed="false">In need of protection</button>
-        <button class="chip" data-v="background" aria-pressed="false">Refugee background</button>
-        <button class="chip" data-v="returned" aria-pressed="false">Returned</button>
-      </div>
-      <div id="f-err" role="group" aria-label="Filter by error type">
-        <button class="chip on" data-v="all" aria-pressed="true">All errors</button>
-        <button class="chip" data-v="inc" aria-pressed="false">Inclusion</button>
-        <button class="chip" data-v="exc" aria-pressed="false">Exclusion</button>
-      </div>
-      <input id="f-search" type="search" placeholder="Search sub-groups" aria-label="Search sub-groups">
-    </div>
-    <div class="table-wrap">
-      <table id="subgroups">
-        <thead><tr><th>IRRS sub-group</th><th>Identified?</th><th>Inclusion errors</th><th>Exclusion errors</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <details>
-      <summary>Download figures (PNG)</summary>
-      <p><a href="img/Fig1_census_IRRS_identification_tree.png">Decision tree</a> · <a href="img/Table1_IRRS_subgroup_errors.png">Sub-group table</a></p>
-    </details>
-  </section>
 </div>
 
 <div data-panel="iris" hidden><section class="card soon">IRIS analysis coming soon.</section></div>
@@ -80,6 +57,7 @@
 
 <footer class="wrap">Based on UN Principles and Recommendations for Population and Housing Censuses, Revision 4, and the International Recommendations on Refugee Statistics (IRRS).</footer>
 
+<div id="tooltip" class="tooltip" role="tooltip" hidden></div>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 </body>
