@@ -8,6 +8,7 @@ Live page: https://mitrovif.github.io/cm-revision/
 
 - **Follow a respondent:** answer the census questions one by one; the decision tree highlights the path and a panel shows the IRRS stock and the inclusion and exclusion errors at that point.
 - **Scenario switches:** for example, acquisition of citizenship not collected (IRRS), reason for displacement not asked (IRIS), or counting unknown citizenship and having register linkage for categories B and C (IROSS).
+- **Paper vs suggestions:** every inclusion and exclusion point in the draft with a verdict (keep, change, expand) and the points we add, each with a short reason. Hovering over an item draws lines to the boxes it affects in the tree.
 - **Explain any box:** hover over a box in the tree to see what it means; click to keep the explanation open (works on touch screens too).
 
 - **Three tabs:** IRRS, IRIS and IROSS, each with its own questions, switches and tree. Links can open a tab directly, for example `#iross`.
@@ -17,6 +18,7 @@ Live page: https://mitrovif.github.io/cm-revision/
 ```
 index.html              page layout
 assets/data.js          all wording per framework: questions, outcomes, errors with source and reference, box explanations (edit here)
+assets/review.js        paper vs suggestions: verdicts, reasons and tree links (edit here)
 assets/app.js           explorer logic per framework, tree highlighting, hover and click explanations
 assets/style.css        styles
 assets/tree-*.svg       decision trees for IRRS, IRIS, IROSS (generated)

@@ -131,9 +131,24 @@
     const grid = el("div", { class: "grid" });
     const left = el("div");
     const qbox = el("div"); const result = el("div", { class: "result-wrap", "aria-live": "polite" });
-    left.appendChild(qbox);
-    left.appendChild(el("button", { class: "reset", type: "button", text: "Start again", onclick: () => { L.order.forEach(k => state[k] = null); update(); } }));
-    left.appendChild(result);
+    const explore = el("div", { class: "mode-explore" });
+    explore.appendChild(qbox);
+    explore.appendChild(el("button", { class: "reset", type: "button", text: "Start again", onclick: () => { L.order.forEach(k => state[k] = null); update(); } }));
+    explore.appendChild(result);
+    const compare = el("div", { class: "mode-compare", hidden: "" });
+    const modes = el("div", { class: "modes", role: "tablist", "aria-label": "View" });
+    const mExplore = el("button", { class: "on", role: "tab", "aria-selected": "true", text: "Follow a person" });
+    const mCompare = el("button", { role: "tab", "aria-selected": "false", text: "Paper vs suggestions" });
+    function setMode(m) {
+      const c = m === "compare";
+      explore.hidden = c; compare.hidden = !c;
+      mExplore.classList.toggle("on", !c); mCompare.classList.toggle("on", c);
+      mExplore.setAttribute("aria-selected", String(!c)); mCompare.setAttribute("aria-selected", String(c));
+      clearLinks(); if (c) { const svg = tree.querySelector("svg"); if (svg) { svg.querySelectorAll("g.lit").forEach(g => g.classList.remove("lit")); tree.classList.remove("has-path"); } } else update();
+    }
+    mExplore.addEventListener("click", () => setMode("explore")); mCompare.addEventListener("click", () => setMode("compare"));
+    modes.appendChild(mExplore); modes.appendChild(mCompare);
+    left.appendChild(modes); left.appendChild(explore); left.appendChild(compare);
     const right = el("div");
     right.appendChild(el("p", { class: "hint", text: D.hint }));
     const tree = el("figure", { class: "tree" });
@@ -142,6 +157,76 @@
     const fig = { irrs: "Fig1_census_IRRS_identification_tree.png", iris: "Fig2_census_IRIS_identification_tree.png", iross: "Fig3_census_IROSS_identification_tree.png" }[key];
     right.appendChild(el("p", { class: "dl" }, [el("a", { href: "img/" + fig, download: "", text: "Download the tree as an image" })]));
     grid.appendChild(left); grid.appendChild(right);
+    right.classList.add("sticky");
+
+    // ---- paper vs suggestions
+    const R = (window.CM_REVIEW || {})[key] || [];
+    const VERD = { keep: "Keep", change: "Change", expand: "Expand", add: "Add" };
+    const VCOL = { keep: "#0F6E56", change: "#993C1D", expand: "#854F0B", add: "#534AB7" };
+    compare.appendChild(el("p", { class: "lead small", text: "Each inclusion or exclusion point in the draft, with what we suggest and why. Hover over or click an item to see where it sits in the tree." }));
+    const chips = el("div", { class: "filters", role: "group", "aria-label": "Filter by verdict" });
+    const list = el("div", { class: "rv-list" });
+    let filt = "all";
+    const counts = {}; R.forEach(r => counts[r.verdict] = (counts[r.verdict] || 0) + 1);
+    [["all", "All (" + R.length + ")"]].concat(Object.keys(VERD).filter(v => counts[v]).map(v => [v, VERD[v] + " (" + counts[v] + ")"])).forEach(([v, lab]) => {
+      const b = el("button", { class: "chip" + (v === "all" ? " on" : ""), "aria-pressed": String(v === "all"), text: lab });
+      b.addEventListener("click", () => { filt = v; chips.querySelectorAll(".chip").forEach(x => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", String(x === b)); }); renderReview(); });
+      chips.appendChild(b);
+    });
+    compare.appendChild(chips); compare.appendChild(list);
+    const targetName = id => {
+      const m = id.match(/^(out|inc|exc)-(.+)$/);
+      if (m && F.outcomes[m[2]]) {
+        const o = F.outcomes[m[2]], name = o.title + (o.stock && o.tone !== "identified" ? " (" + o.stock.toLowerCase() + ")" : "");
+        return (m[1] === "inc" ? "Inclusion: " : m[1] === "exc" ? "Exclusion: " : "") + name;
+      }
+      const t = tipFor(id); return t ? t.title : id;
+    };
+    let pinned = null;
+    function renderReview() {
+      list.innerHTML = ""; pinned = null; clearLinks();
+      R.filter(r => filt === "all" || r.verdict === filt).forEach(r => {
+        const row = el("div", { class: "rv rv-" + r.verdict, tabindex: "0" });
+        row.appendChild(el("div", { class: "rv-head" }, [el("span", { class: "verdict v-" + r.verdict, text: VERD[r.verdict] }),
+          el("span", { class: "where", text: "Tree: " + r.where.map(targetName).filter((x, i, a) => a.indexOf(x) === i).join("; ") })]));
+        row.appendChild(el("div", { class: "rv-cols" }, [
+          el("div", {}, [el("div", { class: "rv-label", text: "In the draft" }), el("p", { class: r.paper ? "" : "muted", text: r.paper || "Not in the draft." })]),
+          el("div", {}, [el("div", { class: "rv-label", text: "Suggested" }), el("p", { text: r.ours })])
+        ]));
+        row.appendChild(el("p", { class: "why" }, [el("strong", { text: "Why: " }), r.why]));
+        const on = () => drawLinks(row, r); const off = () => { if (pinned !== row) { pinned ? drawLinks(pinned, pinned._r) : clearLinks(); } };
+        row._r = r;
+        row.addEventListener("mouseenter", on); row.addEventListener("focus", on);
+        row.addEventListener("mouseleave", off); row.addEventListener("blur", off);
+        row.addEventListener("click", () => { if (pinned === row) { pinned = null; row.classList.remove("pinned"); clearLinks(); } else { if (pinned) pinned.classList.remove("pinned"); pinned = row; row.classList.add("pinned"); drawLinks(row, r); } });
+        list.appendChild(row);
+      });
+    }
+    let active = null;
+    function clearLinks() {
+      active = null;
+      const ov = document.getElementById("links"); if (ov) ov.innerHTML = "";
+      const svg = tree.querySelector("svg"); if (svg) svg.querySelectorAll("g.linked").forEach(g => { g.classList.remove("linked"); g.style.removeProperty("--lc"); });
+    }
+    function drawLinks(row, r) {
+      clearLinks(); active = [row, r];
+      const svg = tree.querySelector("svg"); if (!svg) return;
+      const ov = document.getElementById("links");
+      const rr = row.getBoundingClientRect();
+      const col = VCOL[r.verdict];
+      r.where.forEach(id => {
+        const g = svg.querySelector("#" + key + "-" + id); if (!g) return;
+        g.classList.add("linked"); g.style.setProperty("--lc", col);
+        if (window.innerWidth < 860 || panel.hidden) return;
+        const br = g.getBoundingClientRect();
+        if (br.bottom < 0 || br.top > window.innerHeight) return;
+        const x1 = rr.right, y1 = rr.top + Math.min(28, rr.height / 2), x2 = br.left, y2 = br.top + br.height / 2;
+        const mx = (x1 + x2) / 2;
+        ov.insertAdjacentHTML("beforeend", `<path d="M${x1} ${y1} C${mx} ${y1}, ${mx} ${y2}, ${x2 - 4} ${y2}" fill="none" stroke="${col}" stroke-width="1.6" stroke-dasharray="5 4" opacity=".85"/><circle cx="${x1}" cy="${y1}" r="3.5" fill="${col}"/><circle cx="${x2 - 2}" cy="${y2}" r="3.5" fill="${col}"/>`);
+      });
+    }
+    const redraw = () => { if (active) drawLinks(active[0], active[1]); };
+    window.addEventListener("scroll", redraw, { passive: true }); window.addEventListener("resize", redraw);
     card.appendChild(grid);
 
     const extra = el("div", { class: "note" });
@@ -248,9 +333,9 @@
       tree.innerHTML = txt;
       const svg = tree.querySelector("svg"); svg.removeAttribute("width"); svg.removeAttribute("height");
       svg.setAttribute("aria-label", "Decision tree: census questions to " + F.label + " populations");
-      wire(); update();
+      wire(); update(); renderReview();
     }).catch(() => { tree.innerHTML = '<img src="img/' + fig + '" alt="Decision tree: census questions to ' + F.label + ' populations" style="width:100%">'; });
-    update();
+    update(); renderReview();
     return panel;
   }
 
@@ -263,6 +348,7 @@
     nav.querySelectorAll("button").forEach(b => { const on = b.dataset.tab === k; b.classList.toggle("active", on); b.setAttribute("aria-selected", String(on)); });
     main.querySelectorAll("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== k);
     document.getElementById("tooltip").hidden = true;
+    const ov = document.getElementById("links"); if (ov) ov.innerHTML = "";
     if (location.hash !== "#" + k) history.replaceState(null, "", "#" + k);
   }
   keys.forEach(k => nav.appendChild(el("button", { "data-tab": k, role: "tab", text: D.frameworks[k].label, onclick: () => show(k) })));

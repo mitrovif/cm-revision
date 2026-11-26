@@ -95,3 +95,27 @@ footer { color: var(--muted); font-size: 13px; padding: 8px 0 32px; }
 .result p.sub { color: #085041; font-weight: 600; }
 .note ul { margin: 6px 0 0; padding-left: 18px; }
 .note .ref { color: var(--muted); font-size: 12px; }
+
+.modes { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; padding: 3px; margin-bottom: 12px; background: var(--gray-bg); }
+.modes button { border: none; background: none; font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 8px; cursor: pointer; color: var(--muted); }
+.modes button.on { background: var(--card); color: var(--purple); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.sticky { position: sticky; top: 12px; }
+@media (max-width: 860px) { .sticky { position: static; } }
+.lead.small { font-size: 14px; margin-bottom: 8px; }
+.rv-list { display: grid; gap: 10px; }
+.rv { border: 1px solid var(--line); border-left: 4px solid; border-radius: 0 10px 10px 0; padding: 10px 12px; background: var(--card); cursor: pointer; font-size: 14px; }
+.rv:hover, .rv:focus, .rv.pinned { box-shadow: 0 2px 8px rgba(0,0,0,.08); outline: none; }
+.rv.pinned { background: #FCFBF8; }
+.rv-keep { border-left-color: #0F6E56; } .rv-change { border-left-color: #993C1D; } .rv-expand { border-left-color: #854F0B; } .rv-add { border-left-color: #534AB7; }
+.rv-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.verdict { font-size: 11px; font-weight: 600; border-radius: 999px; padding: 1px 8px; }
+.v-keep { background: #E1F5EE; color: #085041; } .v-change { background: #FAECE7; color: #712B13; } .v-expand { background: #FAEEDA; color: #633806; } .v-add { background: #EEEDFE; color: #3C3489; }
+.where { font-size: 12px; color: var(--muted); }
+.rv-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+@media (max-width: 560px) { .rv-cols { grid-template-columns: 1fr; } }
+.rv-label { font-size: 11px; text-transform: none; color: var(--muted); font-weight: 600; }
+.rv p { margin: 2px 0 0; }
+.rv p.muted { color: var(--muted); font-style: italic; }
+.rv .why { margin-top: 6px; color: var(--muted); font-size: 13px; }
+.links { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 5; }
+.tree g.linked rect { stroke: var(--lc, #D85A30) !important; stroke-width: 3 !important; }
