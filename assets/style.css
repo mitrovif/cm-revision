@@ -216,3 +216,19 @@ label.inline input { accent-color: var(--egriss-blue); }
 .tooltip { max-width: 420px; }
 .tooltip .pt { border-top-color: rgba(255, 255, 255, .15); }
 .tooltip del { color: #ffb3b3; } .tooltip ins, .tooltip strong { color: #9fe3e6; }
+
+/* inclusion and exclusion focus */
+.grid2 { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+.tree g.item { cursor: pointer; }
+.tree g.item.hl > rect { fill: rgba(59, 113, 185, 0.12); stroke: #3B71B9; stroke-width: 1.5; }
+.tree g.item:hover > rect { fill: rgba(59, 113, 185, 0.08); }
+.tree g.hl:not(.item) > rect { stroke: var(--egriss-blue) !important; stroke-width: 3 !important; }
+.pt { border-top: none; padding-top: 0; margin-top: var(--space-2); display: grid; gap: var(--space-1); }
+.pt-row { grid-template-columns: 62px 1fr; }
+.pt-why2 { font-size: 13px; }
+.pt-also { font-size: 12px; opacity: .75; margin-left: 70px; }
+.details .muted, .tooltip .muted { font-style: italic; opacity: .75; }
+.tip-title .verdict { margin-right: 2px; vertical-align: 1px; }
+details.bg { margin-top: var(--space-5); border-top: 1px solid var(--egriss-line); padding-top: var(--space-3); }
+details.bg summary { cursor: pointer; color: var(--egriss-blue); font-weight: 500; }
+details.bg .table-wrap { margin-top: var(--space-3); }

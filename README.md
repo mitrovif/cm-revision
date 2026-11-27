@@ -38,3 +38,8 @@ Requires Python 3 and `rsvg-convert` (librsvg) for the PNGs. To preview locally,
 ## Design
 
 Styled with the EGRISS design system tokens (colours, type, spacing, radii, shadows). Headings use Figtree, the design system's free fallback for the licensed Obvia font, which is not published here.
+
+
+## Focus: inclusion and exclusion errors
+
+Each tree shows the census route to each population, then one line per inclusion or exclusion error under the outcome where it happens. The dot shows how the point compares with the draft: keep, expand, change or add. All error lines come from `assets/errors.json`, which drives both the page and the PNG images (`python3 scripts/build_figures.py`). The draft's Box table sits in a collapsed background section, as written.

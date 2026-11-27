@@ -2,10 +2,10 @@
 
 Usage: python3 scripts/build_figures.py   (needs rsvg-convert for the PNGs)
 
-Every box carries an id (prefixed by framework) so the page can highlight paths
-and show explanations. Wording of the explanations lives in assets/data.js.
+Every box carries an id (prefixed by framework). Inclusion and exclusion errors are drawn from
+assets/errors.json, one line per error with a dot for its verdict, so the page and images match.
 """
-import html, os, subprocess
+import html, json, os, subprocess, textwrap
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONT = "IBM Plex Sans, DejaVu Sans, sans-serif"
@@ -97,18 +97,7 @@ def irrs():
     t.node(187, 580, 135, 56, 'Int. protection', 'Persons in need', 'teal', 'out-o2')
     t.node(334, 580, 135, 56, 'Not identified', 'Migrants, citizens', 'gray', 'out-o3')
     t.node(481, 580, 150, 56, 'Refugee background', 'Naturalised refugees', 'teal', 'out-o4')
-    t.heading(672, 'Inclusion errors: wrongly counted')
-    t.errbox(40, 684, 135, 104, 'amber', ['None'], 'inc-o1')
-    t.errbox(187, 684, 135, 104, 'amber', ['Out-of-scope forced', 'moves (disaster,', 'hardship)', 'Ceased protection,', 'not naturalised'], 'inc-o2')
-    t.errbox(334, 684, 135, 104, 'amber', ['None'], 'inc-o3')
-    t.errbox(481, 684, 150, 104, 'amber', ['Never held status', 'Citizens by birth,', 'if (iii) not collected'], 'inc-o4')
-    t.heading(820, 'Exclusion errors: missed')
-    t.errbox(40, 832, 135, 122, 'coral', ["Refugees' children", 'Refugees sur place', 'who never moved', 'Child not living with', 'refugee parent', '(household link only)'], 'exc-o1')
-    t.errbox(187, 832, 135, 122, 'coral', ['Stateless refugees', 'if coded as foreign', 'only'], 'exc-o2')
-    t.errbox(334, 832, 135, 122, 'coral', ['Not seen as forced', 'Derivative family', 'Secondary movers', 'Later voluntary move', 'Non-disclosure'], 'exc-o3')
-    t.errbox(481, 832, 150, 122, 'coral', ['Later voluntary move', 'Reunified family', 'Ceased protection,', 'counted as int.', 'protection'], 'exc-o4')
-    t.errbox(40, 972, 591, 50, 'coral', ['Returnees: not reached by any branch. Response (e) picks up some returned', 'asylum seekers, but also deportees who never sought protection.'], 'ret')
-    return t.svg('Figure 1. Identifying IRRS populations through census questions', 1030)
+    return t, 'Figure 1. Identifying IRRS populations through census questions'
 
 
 def iris():
@@ -128,20 +117,7 @@ def iris():
     t.node(283, 580, 114, 56, 'Displacement', 'IDP location', 'teal', 'out-d')
     t.node(404, 580, 114, 56, 'Return', 'IDP location', 'teal', 'out-r')
     t.node(526, 580, 114, 56, 'Elsewhere', 'Other settlement', 'teal', 'out-o')
-    t.heading(672, 'Inclusion errors: wrongly counted')
-    t.errbox(40, 684, 114, 104, 'amber', ['None'], 'inc-n1')
-    t.errbox(161, 684, 114, 104, 'amber', ['None'], 'inc-n2')
-    t.errbox(283, 684, 114, 104, 'amber', ['Exit not', 'measurable', 'Out-of-scope', 'reasons, if (x)', 'not asked'], 'inc-d')
-    t.errbox(404, 684, 114, 104, 'amber', ['Exit not', 'measurable', 'Displaced within', 'same area', '(coded as return)'], 'inc-r')
-    t.errbox(526, 684, 114, 104, 'amber', ['Exit not', 'measurable'], 'inc-o')
-    t.heading(820, 'Exclusion errors: missed')
-    t.errbox(40, 832, 114, 122, 'coral', ['Away when event', 'occurred', 'Not asked of all', '(often children)', 'Not disclosed'], 'exc-n1')
-    t.errbox(161, 832, 114, 122, 'coral', ['Abroad under 12', 'months, then', 'came back'], 'exc-n2')
-    t.errbox(283, 832, 114, 122, 'coral', ['Recent arrivals,', 'origin taken as', 'usual residence', '(coded as return)'], 'exc-d')
-    t.errbox(404, 832, 114, 122, 'coral', ['None here'], 'exc-r')
-    t.errbox(526, 832, 114, 122, 'coral', ['Later origin', 'reported after', 'several moves'], 'exc-o')
-    t.errbox(40, 972, 600, 50, 'coral', ['IDP-related: children born after displacement only via a household link; non-displaced', 'family members and those who overcame vulnerabilities are not identified.'], 'rel')
-    return t.svg('Figure 2. Identifying IRIS populations through census questions', 1030)
+    return t, 'Figure 2. Identifying IRIS populations through census questions'
 
 
 def iross():
@@ -159,27 +135,64 @@ def iross():
     t.node(283, 580, 114, 56, 'Category A', 'Native-born', 'teal', 'out-anb')
     t.node(404, 580, 114, 56, 'Category A', 'Foreign-born', 'teal', 'out-afb')
     t.node(526, 580, 114, 56, 'Possible A', 'Report separately', 'gray', 'out-pa')
-    t.heading(672, 'Inclusion errors: wrongly counted')
-    t.errbox(40, 684, 114, 86, 'amber', ['None'], 'inc-c1')
-    t.errbox(161, 684, 114, 86, 'amber', ['None'], 'inc-c2')
-    t.errbox(283, 684, 114, 86, 'amber', ['Nationals who', 'report stateless', '(no documents,', 'misunderstood)'], 'inc-anb')
-    t.errbox(404, 684, 114, 86, 'amber', ['Nationals who', 'report stateless', '(no documents,', 'misunderstood)'], 'inc-afb')
-    t.errbox(526, 684, 114, 86, 'amber', ['Non-response,', 'if counted as A'], 'inc-pa')
-    t.heading(802, 'Exclusion errors: missed')
-    t.errbox(40, 814, 114, 122, 'coral', ['Stateless who', 'report citizen', '(fear, proxy,', 'no "stateless"', 'option, mixed', 'with ethnicity)'], 'exc-c1')
-    t.errbox(161, 814, 114, 122, 'coral', ['Stateless who', 'report a linked', 'country or their', 'birth country'], 'exc-c2')
-    t.errbox(283, 814, 114, 122, 'coral', ['None here'], 'exc-anb')
-    t.errbox(404, 814, 114, 122, 'coral', ['None here'], 'exc-afb')
-    t.errbox(526, 814, 114, 122, 'coral', ['Stateless coded', '"unknown", if', 'not counted'], 'exc-pa')
-    t.errbox(40, 956, 600, 86, 'gray', ['Categories B and C are mixed: recognition needs registers, group recognition or', 'an extra question. Country of birth "unknown" gives category A with no split.',
-                                          'Omitted from the census entirely: not reached by any branch.', 'Stateless-related groups and the overlap with IRRS: see explanations.'], 'note')
-    return t.svg('Figure 3. Identifying IROSS populations through census questions', 1052)
+    return t, 'Figure 3. Identifying IROSS populations through census questions'
+
+
+VCOL = {'keep': '#2E9E7B', 'expand': '#E0A93B', 'change': '#F06667', 'add': '#3B71B9'}
+VLAB = [('keep', 'Keep: agree with draft'), ('expand', 'Expand draft point'),
+        ('change', 'Change draft point'), ('add', 'Add: not in draft')]
+COLS = {'irrs': ([40, 187, 334, 481], [135, 135, 135, 150], ['o1', 'o2', 'o3', 'o4'], 'ret', 'Returnees'),
+        'iris': ([40, 161, 283, 404, 526], [114] * 5, ['n1', 'n2', 'd', 'r', 'o'], 'rel', 'IDP-related populations'),
+        'iross': ([40, 161, 283, 404, 526], [114] * 5, ['c1', 'c2', 'anb', 'afb', 'pa'], 'note', 'Not shown by the branches')}
+
+
+def items_block(t, x, w, items, box, y0):
+    """Draw one item per error: verdict dot + wrapped label. Returns height used."""
+    chars = max(10, int((w - 30) / 6.2))
+    y = y0 + 16; out = []
+    if not items:
+        out.append(t.text(x + 10, y, 'None', 12, 400, T2)); y += 16
+    for it in items:
+        lines = textwrap.wrap(it.get('labels', {}).get(box, it['label']), chars, break_long_words=False)
+        h = 16 * len(lines)
+        g = f'<g id="{t.p}-it-{it["id"]}--{box}" class="item"><rect x="{x + 4}" y="{y - 10}" width="{w - 8}" height="{h + 4}" fill="transparent"/>'
+        g += f'<circle cx="{x + 13}" cy="{y}" r="4.5" fill="{VCOL[it["verdict"]]}"/>'
+        for k, l in enumerate(lines): g += t.text(x + 23, y + 16 * k, l, 12, 400, T1)
+        out.append(g + '</g>'); y += h + 6
+    return y - y0, out
+
+
+def finish(fw, t, title, items):
+    xs, ws, keys, strip_id, strip_title = COLS[fw]
+    by_box = {}
+    for it in items:
+        for b in it['boxes']: by_box.setdefault(b, []).append(it)
+    y = 662
+    for kind, col, head in [('inc', 'amber', 'Inclusion errors: wrongly counted'), ('exc', 'coral', 'Exclusion errors: missed')]:
+        t.heading(y, head); y += 12
+        blocks = [items_block(t, x, w, by_box.get(f'{kind}-{k}', []), f'{kind}-{k}', y) for x, w, k in zip(xs, ws, keys)]
+        H = max(b[0] for b in blocks) + 6
+        for (x, w, k), (_, parts) in zip(zip(xs, ws, keys), blocks):
+            t.add(t._open(f'{kind}-{k}') + t.rect(x, y, w, H, col) + '</g>' + ''.join(parts))
+        y += H + 30
+    # strip for populations not on any branch
+    W = 600 if fw != 'irrs' else 591
+    hh, parts = items_block(t, 40, W, by_box.get(strip_id, []), strip_id, y + 16)
+    t.add(t._open(strip_id) + t.rect(40, y, W, hh + 18, 'gray') + t.text(50, y + 14, strip_title, 13, 600, '#14234C', font=HEAD) + '</g>' + ''.join(parts))
+    y += hh + 18 + 24
+    # legend
+    lx = 40
+    for v, lab in VLAB:
+        t.add(f'<circle cx="{lx + 5}" cy="{y}" r="4.5" fill="{VCOL[v]}"/>' + t.text(lx + 14, y, lab, 11, 400, T2))
+        lx += 150
+    return t.svg(title, y + 14)
 
 
 if __name__ == '__main__':
-    outs = [('irrs', irrs(), 'Fig1_census_IRRS_identification_tree.png'),
-            ('iris', iris(), 'Fig2_census_IRIS_identification_tree.png'),
-            ('iross', iross(), 'Fig3_census_IROSS_identification_tree.png')]
+    ERR = json.load(open(os.path.join(ROOT, 'assets', 'errors.json')))
+    outs = [('irrs', finish('irrs', *irrs(), ERR['irrs']), 'Fig1_census_IRRS_identification_tree.png'),
+            ('iris', finish('iris', *iris(), ERR['iris']), 'Fig2_census_IRIS_identification_tree.png'),
+            ('iross', finish('iross', *iross(), ERR['iross']), 'Fig3_census_IROSS_identification_tree.png')]
     for key, svg, png in outs:
         p = os.path.join(ROOT, 'assets', f'tree-{key}.svg')
         open(p, 'w').write(svg)

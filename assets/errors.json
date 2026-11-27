@@ -1,0 +1,403 @@
+{
+ "irrs": [
+  {
+   "id": "irrs-1",
+   "verdict": "keep",
+   "label": "Not seen as forced",
+   "boxes": [
+    "exc-o3"
+   ],
+   "draft": "Exclusion: someone with refugee status who does not view their move as “forced” may not be identified, depending on how question (v) is presented.",
+   "suggested": null,
+   "why": "The mechanism is right: the reason is self-declared and only one main reason is recorded (P&R paras 5.128 and 5.129)."
+  },
+  {
+   "id": "irrs-2",
+   "verdict": "change",
+   "label": "Examples: group recognition, sur place",
+   "boxes": [
+    "exc-o3",
+    "exc-o1"
+   ],
+   "draft": "Examples of that exclusion: group recognition, and refugees “in situ”, either born in the country of asylum or who moved by choice before circumstances changed.",
+   "suggested": "Replace group recognition with family members admitted with derivative status, who may report “family reunification”. Keep refugees sur place who moved by choice here; list those born in the country separately as native-born exclusions.",
+   "why": "Group recognition does not make people less likely to report fleeing. People born in the country of asylum are excluded because they have no international move (question i), not because of how they read question (v).",
+   "labels": {
+    "exc-o1": "Refugees sur place, born here"
+   }
+  },
+  {
+   "id": "irrs-3",
+   "verdict": "expand",
+   "label": "Left and returned; secondary movers",
+   "boxes": [
+    "exc-o3"
+   ],
+   "draft": "Exclusion: refugees who leave the country and come back voluntarily are not identified, as their most recent move was not forced.",
+   "suggested": "Add refugees whose most recent move was a secondary movement from a first country of asylum for other reasons.",
+   "why": "Same mechanism: question (v) refers only to the most recent move (P&R para 5.128)."
+  },
+  {
+   "id": "irrs-4",
+   "verdict": "keep",
+   "label": "No split into sub-stocks",
+   "boxes": [
+    "out-o2"
+   ],
+   "draft": "No differentiation at the sub-stock level: asylum seekers, refugees and others in refugee-like situations cannot be separated.",
+   "suggested": null,
+   "why": "Correct: none of the Box A.2 questions records legal status."
+  },
+  {
+   "id": "irrs-5",
+   "verdict": "change",
+   "label": "Citizens by birth who fled, if (iii) not used",
+   "boxes": [
+    "inc-o4"
+   ],
+   "draft": "Inclusion (under persons in need of international protection): someone born abroad who is a citizen of the census country and flees to it is counted as having a refugee background.",
+   "suggested": "Move to refugee background, and make it conditional: it happens only where acquisition of citizenship (iii) is not collected or not used. Set (iii) to “other than by birth” in Box A.2.",
+   "why": "The person is wrongly counted in refugee background, not in the other stock (Felix's comment). With (iii) asked and used, citizens by birth drop out at the “by birth” branch."
+  },
+  {
+   "id": "irrs-6",
+   "verdict": "expand",
+   "label": "Naturalised, later move not forced",
+   "boxes": [
+    "exc-o4"
+   ],
+   "draft": "Refugee background: naturalised former refugees are identified, and children if they live with an identified refugee parent.",
+   "suggested": "Add that naturalised former refugees are identified only if their most recent move was forced, and that the household link for children is not part of the Box A.2 mapping.",
+   "why": "Question (v) refers to the latest move, and Box A.2 has no rule for children, so the text claims more than the mapping delivers."
+  },
+  {
+   "id": "irrs-7",
+   "verdict": "keep",
+   "label": "Children not living with parent",
+   "boxes": [
+    "exc-o1"
+   ],
+   "draft": "Exclusion: children of refugee parents who do not live in the same household as their refugee parent.",
+   "suggested": null,
+   "why": "The household link is the only route to these children, so it fails when they live apart."
+  },
+  {
+   "id": "irrs-8",
+   "verdict": "keep",
+   "label": "Never held protection status",
+   "boxes": [
+    "inc-o4"
+   ],
+   "draft": "Inclusion: naturalised people who reported their migration as forced but were never granted protection status.",
+   "suggested": null,
+   "why": "Response (d) is self-declared and includes “others”, so it cannot confirm past status."
+  },
+  {
+   "id": "irrs-9",
+   "verdict": "expand",
+   "label": "Not identified; response (e) only a partial proxy",
+   "boxes": [
+    "ret"
+   ],
+   "draft": "Persons returned after seeking international protection are not identified.",
+   "suggested": "Add that response (e), deportation or involuntary return, picks up some returned asylum seekers but also deportees who never sought protection, and misses voluntary repatriation.",
+   "why": "So that (e) is not read as a proxy for this stock (IRRS paras 95 to 97)."
+  },
+  {
+   "id": "irrs-10",
+   "verdict": "add",
+   "label": "Children born here, no citizenship",
+   "boxes": [
+    "exc-o1"
+   ],
+   "draft": null,
+   "suggested": "Children born in the country to refugee parents who do not hold its citizenship are missed, except through a household link.",
+   "why": "The IRRS counts them as persons in need of international protection (para 90), but they fail question (i)."
+  },
+  {
+   "id": "irrs-11",
+   "verdict": "add",
+   "label": "Disaster or hardship reported as forced",
+   "boxes": [
+    "inc-o2"
+   ],
+   "draft": null,
+   "suggested": "People who report forced displacement for reasons outside the IRRS scope, such as disasters or economic hardship, are wrongly counted.",
+   "why": "Response (d) is self-declared and P&R notes the main reason cannot capture complex drivers (para 5.131)."
+  },
+  {
+   "id": "irrs-12",
+   "verdict": "add",
+   "label": "Ceased protection, not naturalised",
+   "boxes": [
+    "inc-o2",
+    "exc-o4"
+   ],
+   "draft": null,
+   "suggested": "People whose protection has ceased but who have not naturalised are counted as in need of international protection instead of refugee background.",
+   "why": "The IRRS places them in refugee background (para 94.4); the census puts them in the wrong stock.",
+   "labels": {
+    "exc-o4": "Ceased protection, counted as in need"
+   }
+  },
+  {
+   "id": "irrs-13",
+   "verdict": "add",
+   "label": "Reunified family members",
+   "boxes": [
+    "exc-o3"
+   ],
+   "draft": null,
+   "suggested": "Reunified family members who are not refugees themselves are missed, as they report family reunification.",
+   "why": "A refugee background sub-group in the IRRS (para 94.3) that the draft does not mention."
+  },
+  {
+   "id": "irrs-14",
+   "verdict": "add",
+   "label": "Not disclosed, or proxy answer",
+   "boxes": [
+    "exc-o3"
+   ],
+   "draft": null,
+   "suggested": "People who do not disclose a forced move out of fear, or whose reason is unknown to a proxy respondent, are missed.",
+   "why": "A common source of misreporting on sensitive census questions."
+  },
+  {
+   "id": "irrs-15",
+   "verdict": "add",
+   "label": "Stateless, if coded foreign only",
+   "boxes": [
+    "exc-o2"
+   ],
+   "draft": null,
+   "suggested": "Stateless refugees are missed if citizenship (ii) is mapped as “foreign country” only.",
+   "why": "P&R provides stateless and unknown codes (para 5.116). Mainly an IROSS point, flagged here because stateless refugees are in this stock."
+  }
+ ],
+ "iris": [
+  {
+   "id": "iris-1",
+   "verdict": "keep",
+   "label": "Recent arrivals coded as return",
+   "boxes": [
+    "exc-d",
+    "inc-r"
+   ],
+   "draft": "Categorisation: recently displaced people whose usual residence is recorded as the place they fled from are likely to be classified as IDPs in locations of return.",
+   "suggested": null,
+   "why": "Correct: comparing (i) with (xii) puts them on the return branch.",
+   "labels": {
+    "exc-d": "Recent arrivals, coded as return",
+    "inc-r": "Recent arrivals, wrongly here"
+   }
+  },
+  {
+   "id": "iris-2",
+   "verdict": "change",
+   "label": "Abroad under 12 months, then back",
+   "boxes": [
+    "exc-n2"
+   ],
+   "draft": "Exclusion: people who move abroad for less than 12 months and come back should still count as IDPs, but the questions do not elicit time spent abroad.",
+   "suggested": "Explain the mechanism: they answer “abroad” to (xiii), and the “within country” filter removes them.",
+   "why": "Joe questioned this paragraph; the problem is the filter on (xiii), not the time abroad as such."
+  },
+  {
+   "id": "iris-3",
+   "verdict": "change",
+   "label": "Away when the event occurred",
+   "boxes": [
+    "exc-n1"
+   ],
+   "draft": "Exclusion: IDPs “in situ”, who relocated by choice before something happened that made return impossible.",
+   "suggested": "Limit it to people who were temporarily away from their place of habitual residence when the event occurred, and who may answer “no” to (ix).",
+   "why": "Under the IRIS, habitual residence is at the time of the causing event (para 41). Someone who had already settled elsewhere by choice is not an IDP."
+  },
+  {
+   "id": "iris-4",
+   "verdict": "expand",
+   "label": "Exit not measurable; out-of-scope reasons",
+   "boxes": [
+    "inc-d",
+    "inc-r",
+    "inc-o"
+   ],
+   "draft": "Inclusion: the questions identify people who entered the IDP stock but not those who left it by overcoming their displacement-related needs.",
+   "suggested": "Add that (ix) has no time limit, and that where the reason (x) is not asked, people forced to move for reasons outside the Guiding Principles are also counted.",
+   "why": "IRIS para 211 lists the reason as optional, so this error depends on the country's choice."
+  },
+  {
+   "id": "iris-5",
+   "verdict": "expand",
+   "label": "Several displacements: later origin",
+   "boxes": [
+    "exc-o"
+   ],
+   "draft": "Limitation: if someone has been displaced several times, only one displacement can be captured.",
+   "suggested": "Add that (xi) and (xii) should refer to the first displacement, otherwise people may report a later origin and be placed in the wrong sub-category.",
+   "why": "IRIS uses date of first displacement as a classificatory variable (para 177)."
+  },
+  {
+   "id": "iris-6",
+   "verdict": "expand",
+   "label": "Displaced within the same area",
+   "boxes": [
+    "inc-r"
+   ],
+   "draft": "Standard questions do not capture people forcibly moved within the same administrative area.",
+   "suggested": "Add that with the dedicated questions, such people report the same location in (xii) and (i) and appear as returns.",
+   "why": "Coded locations cannot tell a short-distance displacement from a return."
+  },
+  {
+   "id": "iris-7",
+   "verdict": "expand",
+   "label": "Children: no link rule in Box A.3",
+   "boxes": [
+    "rel"
+   ],
+   "draft": "IDP-related: children born after displacement are identified if they live with an identified IDP parent; others are not identified.",
+   "suggested": "Add a rule to Box A.3 for the link, such as birth after the date reported in (xi).",
+   "why": "The text says these children are identified, but the mapping gives no rule."
+  },
+  {
+   "id": "iris-8",
+   "verdict": "keep",
+   "label": "Children not living with IDP parent",
+   "boxes": [
+    "rel"
+   ],
+   "draft": "Exclusion: children of IDP parents who do not live with them.",
+   "suggested": null,
+   "why": "The household link is the only route to these children."
+  },
+  {
+   "id": "iris-9",
+   "verdict": "add",
+   "label": "Questions skipped, often children",
+   "boxes": [
+    "exc-n1"
+   ],
+   "draft": null,
+   "suggested": "Household members for whom the displacement questions are skipped, most often children, are missed.",
+   "why": "IRIS recommends asking all household members (para 216), in line with Felix's comment."
+  },
+  {
+   "id": "iris-10",
+   "verdict": "add",
+   "label": "Not disclosed, or proxy answer",
+   "boxes": [
+    "exc-n1"
+   ],
+   "draft": null,
+   "suggested": "People who do not disclose a forced move out of fear, or whose history is unknown to a proxy respondent, are missed.",
+   "why": "A common source of misreporting on sensitive census questions."
+  }
+ ],
+ "iross": [
+  {
+   "id": "iross-2",
+   "verdict": "keep",
+   "label": "Omitted from the census entirely",
+   "boxes": [
+    "note"
+   ],
+   "draft": "Coverage error: stateless people are at particular risk of omission, for example because they avoid authorities.",
+   "suggested": null,
+   "why": "IROSS para 171; it is the one error type the draft already covers."
+  },
+  {
+   "id": "iross-4",
+   "verdict": "expand",
+   "label": "Unknown citizenship: counted or not",
+   "boxes": [
+    "inc-pa",
+    "exc-pa"
+   ],
+   "draft": "Citizenship should have two extra codes: stateless, and unknown.",
+   "suggested": "Add how “unknown” is treated: counting it as category A includes non-response, leaving it out misses stateless people. Report it separately.",
+   "why": "P&R notes that telling stateless people apart from those with unclear citizenship is a significant challenge (para 5.116).",
+   "labels": {
+    "inc-pa": "Non-response, if counted as A",
+    "exc-pa": "Stateless coded unknown, if not counted"
+   }
+  },
+  {
+   "id": "iross-5",
+   "verdict": "expand",
+   "label": "Country of birth unknown: no split",
+   "boxes": [
+    "note"
+   ],
+   "draft": "Country of birth should have an “unknown” code.",
+   "suggested": "Add that where it is unknown, for example for foundlings, the native-born and foreign-born split is not possible.",
+   "why": "IROSS para 168."
+  },
+  {
+   "id": "iross-6",
+   "verdict": "add",
+   "label": "Report being citizens (fear, proxy, no option, ethnicity)",
+   "boxes": [
+    "exc-c1"
+   ],
+   "draft": null,
+   "suggested": "Stateless people recorded as citizens: out of fear, through proxy answers, where there is no “stateless” option, where citizenship is combined with ethnicity, or where country of birth replaces it.",
+   "why": "IROSS paras 165 and 168. Since one question identifies the population, how it is asked drives most errors."
+  },
+  {
+   "id": "iross-7",
+   "verdict": "add",
+   "label": "Report a linked or birth country",
+   "boxes": [
+    "exc-c2"
+   ],
+   "draft": null,
+   "suggested": "Stateless people who report a country they are linked to, or their country of birth, are recorded as foreign citizens.",
+   "why": "Links to another country are part of the IROSS framework (para 67), and census answers may reflect them."
+  },
+  {
+   "id": "iross-8",
+   "verdict": "add",
+   "label": "Nationals who report stateless",
+   "boxes": [
+    "inc-anb",
+    "inc-afb"
+   ],
+   "draft": null,
+   "suggested": "People who hold a nationality but report being stateless, for example because they lack documents or misunderstand the question.",
+   "why": "Self-report is the only basis for category A in the census (IROSS para 155)."
+  },
+  {
+   "id": "iross-9",
+   "verdict": "add",
+   "label": "Categories B and C mixed",
+   "boxes": [
+    "note"
+   ],
+   "draft": null,
+   "suggested": "Categories B and C can only be separated through register linkage, group recognition or an added recognition question; otherwise only category A is reported.",
+   "why": "Recognition is formal and recorded in registers or documents (IROSS paras 65 and 156)."
+  },
+  {
+   "id": "iross-10",
+   "verdict": "add",
+   "label": "Stateless-related groups",
+   "boxes": [
+    "note"
+   ],
+   "draft": null,
+   "suggested": "Stateless-related population: household members through the roster, children through a household link, previously stateless people only if previous citizenship is asked.",
+   "why": "Mirrors refugee background and IDP-related (IROSS paras 74 to 76; P&R para 5.120)."
+  },
+  {
+   "id": "iross-11",
+   "verdict": "add",
+   "label": "Also counted under IRRS",
+   "boxes": [
+    "note"
+   ],
+   "draft": null,
+   "suggested": "Stateless refugees appear in both IRRS and IROSS counts; the two totals should not be added.",
+   "why": "IROSS para 172 refers to stateless people also seeking international protection."
+  }
+ ]
+}
