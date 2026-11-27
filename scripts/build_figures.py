@@ -8,11 +8,17 @@ and show explanations. Wording of the explanations lives in assets/data.js.
 import html, os, subprocess
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FONT = "Inter, DejaVu Sans, sans-serif"
-C = {'purple': ('#EEEDFE', '#534AB7', '#3C3489', '#534AB7'), 'teal': ('#E1F5EE', '#0F6E56', '#085041', '#0F6E56'),
-     'gray': ('#F1EFE8', '#5F5E5A', '#444441', '#5F5E5A'), 'amber': ('#FAEEDA', '#854F0B', '#633806', '#854F0B'),
-     'coral': ('#FAECE7', '#993C1D', '#712B13', '#993C1D')}
-T1 = '#2C2C2A'; T2 = '#5F5E5A'; LINE = '#73726c'
+FONT = "IBM Plex Sans, DejaVu Sans, sans-serif"
+HEAD = "Figtree, IBM Plex Sans, DejaVu Sans, sans-serif"
+# EGRISS design system palette (tokens: navy #14234C, blue #3B71B9, teal #4CC3C9,
+# coral #F06667, gold #E0A93B, ink #1D2940, muted #5A6884, line #D9E2EF, tint #EEF3FA)
+# role: (fill, stroke, title text, subtitle text)
+C = {'purple': ('#EEF3FA', '#3B71B9', '#14234C', '#3B71B9'),   # questions
+     'teal':   ('#E4F6F7', '#2A9DA3', '#14234C', '#1F6F74'),   # identified populations
+     'gray':   ('#F1F4F8', '#B9C7DC', '#1D2940', '#5A6884'),   # not counted / structural
+     'amber':  ('#FBF3E1', '#E0A93B', '#6B4A0E', '#6B4A0E'),   # inclusion errors
+     'coral':  ('#FDEDED', '#F06667', '#8A2B2C', '#8A2B2C')}   # exclusion errors
+T1 = '#1D2940'; T2 = '#5A6884'; LINE = '#5A6884'
 
 
 class Tree:
@@ -24,17 +30,17 @@ class Tree:
 
     @staticmethod
     def rect(x, y, w, h, col=None, rx=8):
-        f, s = (C[col][0], C[col][1]) if col else ('#FFFFFF', '#B4B2A9')
+        f, s = (C[col][0], C[col][1]) if col else ('#FFFFFF', '#B9C7DC')
         return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{f}" stroke="{s}" stroke-width="0.8"/>'
 
     @staticmethod
-    def text(x, y, s, size=12, weight=400, fill=T1, anchor='start'):
-        return (f'<text x="{x}" y="{y}" font-family="{FONT}" font-size="{size}" font-weight="{weight}" '
+    def text(x, y, s, size=12, weight=400, fill=T1, anchor='start', font=None):
+        return (f'<text x="{x}" y="{y}" font-family="{font or FONT}" font-size="{size}" font-weight="{weight}" '
                 f'fill="{fill}" text-anchor="{anchor}" dominant-baseline="central">{html.escape(s)}</text>')
 
     def start(self, label='Census population'):
-        self.add(self._open('start') + self.rect(250, 20, 180, 40, 'gray', 20)
-                 + self.text(340, 40, label, 14, 600, C['gray'][2], 'middle') + '</g>')
+        self.add(self._open('start') + '<rect x="250" y="20" width="180" height="40" rx="10" fill="#14234C"/>'
+                 + self.text(340, 40, label, 14, 600, '#FFFFFF', 'middle') + '</g>')
         self.ln(340, 60, 340, 86, True)
 
     def node(self, x, y, w, h, title, sub, col, i=''):
@@ -53,7 +59,7 @@ class Tree:
         m = f' marker-end="url(#{self.p}-a)"' if arrow else ''
         self.add(f'<path d="{d}" fill="none" stroke="{LINE}" stroke-width="1.2"{m}/>')
 
-    def heading(self, y, s): self.add(self.text(40, y, s, 14, 600))
+    def heading(self, y, s): self.add(self.text(40, y, s, 14, 600, '#14234C', font=HEAD))
 
     def errbox(self, x, y, w, h, col, lines, i=''):
         tc = C[col][2]
@@ -66,7 +72,7 @@ class Tree:
         return (f'<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="{H * 2}" viewBox="0 0 680 {H}">'
                 f'<defs><marker id="{self.p}-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
                 f'<path d="M2 1L8 5L2 9" fill="none" stroke="{LINE}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>'
-                f'<rect width="680" height="{H}" fill="#FFFFFF"/>{self.text(40, 28, title, 15, 600)}'
+                f'<rect width="680" height="{H}" fill="#FFFFFF"/><rect x="40" y="38" width="72" height="3" fill="#4CC3C9"/>{self.text(40, 22, title, 15, 600, "#14234C", font=HEAD)}'
                 f'<g transform="translate(0,46)">{"".join(self.g)}</g></svg>')
 
 

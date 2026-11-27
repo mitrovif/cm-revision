@@ -117,6 +117,7 @@
     const panel = el("div", { "data-panel": key, hidden: "" });
     const card = el("section", { class: "card" });
     card.appendChild(el("h2", { text: F.heading }));
+    card.appendChild(el("div", { class: "accent-rule" }));
     card.appendChild(el("p", { class: "lead", text: F.lead }));
     const toggles = el("div", { class: "toggles" });
     F.toggles.forEach(t => {
@@ -136,19 +137,21 @@
     explore.appendChild(el("button", { class: "reset", type: "button", text: "Start again", onclick: () => { L.order.forEach(k => state[k] = null); update(); } }));
     explore.appendChild(result);
     const compare = el("div", { class: "mode-compare", hidden: "" });
+    const ranking = el("div", { class: "mode-rank", hidden: "" });
     const modes = el("div", { class: "modes", role: "tablist", "aria-label": "View" });
-    const mExplore = el("button", { class: "on", role: "tab", "aria-selected": "true", text: "Follow a person" });
-    const mCompare = el("button", { role: "tab", "aria-selected": "false", text: "Paper vs suggestions" });
-    function setMode(m) {
-      const c = m === "compare";
-      explore.hidden = c; compare.hidden = !c;
-      mExplore.classList.toggle("on", !c); mCompare.classList.toggle("on", c);
-      mExplore.setAttribute("aria-selected", String(!c)); mCompare.setAttribute("aria-selected", String(c));
-      clearLinks(); if (c) { const svg = tree.querySelector("svg"); if (svg) { svg.querySelectorAll("g.lit").forEach(g => g.classList.remove("lit")); tree.classList.remove("has-path"); } } else update();
+    const MODES = [["explore", "Follow a person", explore], ["compare", "Paper vs suggestions", compare], ["rank", "Agreement and ranking", ranking]];
+    const modeBtns = {};
+    function setMode(m, verdictFilter) {
+      MODES.forEach(([k, , box]) => { box.hidden = k !== m; modeBtns[k].classList.toggle("on", k === m); modeBtns[k].setAttribute("aria-selected", String(k === m)); });
+      clearLinks();
+      const svg = tree.querySelector("svg");
+      if (m === "explore") update();
+      else if (svg) { svg.querySelectorAll("g.lit").forEach(g => g.classList.remove("lit")); tree.classList.remove("has-path"); }
+      if (m === "compare" && verdictFilter) setFilter(verdictFilter);
     }
-    mExplore.addEventListener("click", () => setMode("explore")); mCompare.addEventListener("click", () => setMode("compare"));
-    modes.appendChild(mExplore); modes.appendChild(mCompare);
-    left.appendChild(modes); left.appendChild(explore); left.appendChild(compare);
+    MODES.forEach(([k, lab]) => { const b = el("button", { role: "tab", "aria-selected": "false", text: lab }); b.addEventListener("click", () => setMode(k)); modeBtns[k] = b; modes.appendChild(b); });
+    modeBtns.explore.classList.add("on"); modeBtns.explore.setAttribute("aria-selected", "true");
+    left.appendChild(modes); left.appendChild(explore); left.appendChild(compare); left.appendChild(ranking);
     const right = el("div");
     right.appendChild(el("p", { class: "hint", text: D.hint }));
     const tree = el("figure", { class: "tree" });
@@ -162,18 +165,79 @@
     // ---- paper vs suggestions
     const R = (window.CM_REVIEW || {})[key] || [];
     const VERD = { keep: "Keep", change: "Change", expand: "Expand", add: "Add" };
-    const VCOL = { keep: "#0F6E56", change: "#993C1D", expand: "#854F0B", add: "#534AB7" };
+    const VCOL = { keep: "#2e9e7b", change: "#c94a4b", expand: "#a8771a", add: "#3b71b9" };
     compare.appendChild(el("p", { class: "lead small", text: "Each inclusion or exclusion point in the draft, with what we suggest and why. Hover over or click an item to see where it sits in the tree." }));
     const chips = el("div", { class: "filters", role: "group", "aria-label": "Filter by verdict" });
     const list = el("div", { class: "rv-list" });
     let filt = "all";
     const counts = {}; R.forEach(r => counts[r.verdict] = (counts[r.verdict] || 0) + 1);
     [["all", "All (" + R.length + ")"]].concat(Object.keys(VERD).filter(v => counts[v]).map(v => [v, VERD[v] + " (" + counts[v] + ")"])).forEach(([v, lab]) => {
-      const b = el("button", { class: "chip" + (v === "all" ? " on" : ""), "aria-pressed": String(v === "all"), text: lab });
-      b.addEventListener("click", () => { filt = v; chips.querySelectorAll(".chip").forEach(x => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", String(x === b)); }); renderReview(); });
+      const b = el("button", { class: "chip" + (v === "all" ? " on" : ""), "aria-pressed": String(v === "all"), "data-v": v, text: lab });
+      b.addEventListener("click", () => setFilter(v));
       chips.appendChild(b);
     });
     compare.appendChild(chips); compare.appendChild(list);
+    function setFilter(v) { filt = v; chips.querySelectorAll(".chip").forEach(x => { const on = x.dataset.v === v; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); }); renderReview(); }
+
+    // ---- agreement and ranking
+    const S = window.CM_SCALES;
+    const KF = [["keep", "Draft points we agree with as written"], ["expand", "Draft points that are right but need expanding"], ["change", "Draft points we disagree with or would move"], ["add", "Points missing from the draft"]];
+    const kfigs = el("div", { class: "kfigs" });
+    KF.forEach(([v, cap]) => {
+      const k = el("div", { class: "kfig " + v, role: "button", tabindex: "0", title: "Show these in Paper vs suggestions" }, [el("div", { class: "num", text: String(counts[v] || 0) }), el("div", { class: "cap", text: cap })]);
+      k.style.cursor = "pointer";
+      k.addEventListener("click", () => setMode("compare", v));
+      k.addEventListener("keydown", e => { if (e.key === "Enter") setMode("compare", v); });
+      kfigs.appendChild(k);
+    });
+    const draftN = (counts.keep || 0) + (counts.expand || 0) + (counts.change || 0);
+    ranking.appendChild(el("p", { class: "lead small", text: "Of the " + draftN + " inclusion and exclusion points in the draft, we agree with " + ((counts.keep || 0) + (counts.expand || 0)) + " (" + (counts.expand || 0) + " of them need expanding) and would change " + (counts.change || 0) + ". We suggest " + (counts.add || 0) + " further points. Click a figure to see those items." }));
+    ranking.appendChild(kfigs);
+    const bar = el("div", { class: "agree-bar", "aria-hidden": "true" });
+    KF.forEach(([v]) => { const sp = el("span"); sp.style.width = (100 * (counts[v] || 0) / R.length) + "%"; sp.style.background = VCOL[v]; bar.appendChild(sp); });
+    ranking.appendChild(bar);
+    ranking.appendChild(el("h3", { text: "Ranking draft and suggested points together", style: "font-size:1.375rem;margin:0 0 4px" }));
+    ranking.appendChild(el("p", { class: "lead small", text: "Each point is scored from 1 to 3 on three criteria. Adjust how much each criterion counts; the list reorders. Hover over a point to see it in the tree." }));
+    const W = { size: 1, severity: 1, fix: 1 };
+    const wbox = el("div", { class: "weights" }, [el("div", { class: "w-title", text: "Weights" })]);
+    Object.keys(W).forEach(k => {
+      const val = el("span", { class: "w-val", text: "1" });
+      const inp = el("input", { type: "range", min: "0", max: "3", step: "1", value: "1", "aria-label": S[k].label + " weight" });
+      inp.addEventListener("input", () => { W[k] = +inp.value; val.textContent = inp.value; renderRank(); });
+      wbox.appendChild(el("label", {}, [el("span", { text: S[k].label }), inp, val]));
+      wbox.appendChild(el("div", { class: "w-help", text: S[k].help + ": 1 " + S[k].levels[0].toLowerCase() + ", 3 " + S[k].levels[2].toLowerCase() + "." }));
+    });
+    ranking.appendChild(wbox);
+    const rlist = el("div", { class: "rank-list" });
+    ranking.appendChild(rlist);
+    ranking.appendChild(el("details", { class: "method" }, [el("summary", { text: "How the scores were set" }),
+      el("p", { text: "Scores are a reviewer's judgement, not measurements. Reach reflects how common the situation is likely to be in census populations; severity reflects whether people are only caveated, missed or over-counted, or put in the wrong stock; fixability reflects whether a change to wording, coding or the Box mapping is enough, or an added question or data link is needed. The overall score is the weighted average, shown on a 0 to 10 scale. High is 7.5 or more, medium 5.5 or more." })]));
+    let rpinned = null;
+    function renderRank() {
+      rlist.innerHTML = ""; rpinned = null; clearLinks();
+      const wsum = W.size + W.severity + W.fix || 1;
+      const rows = R.map(r => Object.assign({ total: Math.round(100 * (W.size * r.score.size + W.severity * r.score.severity + W.fix * r.score.fix) / (3 * wsum)) / 10 }, r))
+        .sort((a, b) => b.total - a.total || b.score.severity - a.score.severity);
+      rows.forEach((r, i) => {
+        const tier = r.total >= 7.5 ? "high" : r.total >= 5.5 ? "medium" : "low";
+        const src = r.verdict === "add" ? "added" : "draft";
+        const head = el("div", {}, [el("span", { class: "verdict v-" + r.verdict, text: VERD[r.verdict] }), " ", el("span", { class: "src src-" + src, text: SRC[src][0] }), el("span", { class: "tier " + tier, text: tier + " priority" })]);
+        const body = el("div", {}, [head, el("p", { class: "txt", text: r.paper || r.ours })]);
+        if (r.paper && r.verdict !== "keep") body.appendChild(el("p", { class: "txt ref", text: "Suggested: " + r.ours }));
+        const bars = el("div", { class: "bars" });
+        [["size", ""], ["severity", " sev"], ["fix", " fix"]].forEach(([k, c]) => {
+          const b = el("div", { class: "bar" + c, title: S[k].label + ": " + S[k].levels[r.score[k] - 1] }); const sp = el("span"); sp.style.width = (100 * r.score[k] / 3) + "%"; b.appendChild(sp); bars.appendChild(b);
+        });
+        const lab = el("div", { class: "barlab", text: "reach · severity · fix" });
+        const row = el("div", { class: "rank", tabindex: "0" }, [el("div", { class: "pos", text: String(i + 1) }), body, el("div", { class: "scorebox" }, [el("div", { class: "score", text: r.total.toFixed(1) }), bars, lab])]);
+        const on = () => drawLinks(row, r); const off = () => { if (rpinned !== row) { rpinned ? drawLinks(rpinned, rpinned._r) : clearLinks(); } };
+        row._r = r;
+        row.addEventListener("mouseenter", on); row.addEventListener("focus", on);
+        row.addEventListener("mouseleave", off); row.addEventListener("blur", off);
+        row.addEventListener("click", () => { if (rpinned === row) { rpinned = null; row.classList.remove("pinned"); clearLinks(); } else { if (rpinned) rpinned.classList.remove("pinned"); rpinned = row; row.classList.add("pinned"); drawLinks(row, r); } });
+        rlist.appendChild(row);
+      });
+    }
     const targetName = id => {
       const m = id.match(/^(out|inc|exc)-(.+)$/);
       if (m && F.outcomes[m[2]]) {
@@ -333,9 +397,9 @@
       tree.innerHTML = txt;
       const svg = tree.querySelector("svg"); svg.removeAttribute("width"); svg.removeAttribute("height");
       svg.setAttribute("aria-label", "Decision tree: census questions to " + F.label + " populations");
-      wire(); update(); renderReview();
+      wire(); update(); renderReview(); renderRank();
     }).catch(() => { tree.innerHTML = '<img src="img/' + fig + '" alt="Decision tree: census questions to ' + F.label + ' populations" style="width:100%">'; });
-    update(); renderReview();
+    update(); renderReview(); renderRank();
     return panel;
   }
 
