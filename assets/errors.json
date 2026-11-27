@@ -303,7 +303,7 @@
    ],
    "draft": "Coverage error: stateless people are at particular risk of omission, for example because they avoid authorities.",
    "suggested": null,
-   "why": "IROSS para 171; it is the one error type the draft already covers."
+   "why": "IROSS para 171: they may avoid contact with authorities for fear of discrimination or mistreatment, or be left out by national policy. The one error type the draft already covers."
   },
   {
    "id": "iross-4",
@@ -320,17 +320,6 @@
     "inc-pa": "Non-response, if counted as A",
     "exc-pa": "Stateless coded unknown, if not counted"
    }
-  },
-  {
-   "id": "iross-5",
-   "verdict": "expand",
-   "label": "Country of birth unknown: no split",
-   "boxes": [
-    "note"
-   ],
-   "draft": "Country of birth should have an “unknown” code.",
-   "suggested": "Add that where it is unknown, for example for foundlings, the native-born and foreign-born split is not possible.",
-   "why": "IROSS para 168."
   },
   {
    "id": "iross-6",
@@ -376,28 +365,6 @@
    "draft": null,
    "suggested": "Categories B and C can only be separated through register linkage, group recognition or an added recognition question; otherwise only category A is reported.",
    "why": "Recognition is formal and recorded in registers or documents (IROSS paras 65 and 156)."
-  },
-  {
-   "id": "iross-10",
-   "verdict": "add",
-   "label": "Stateless-related groups",
-   "boxes": [
-    "note"
-   ],
-   "draft": null,
-   "suggested": "Stateless-related population: household members through the roster, children through a household link, previously stateless people only if previous citizenship is asked.",
-   "why": "Mirrors refugee background and IDP-related (IROSS paras 74 to 76; P&R para 5.120)."
-  },
-  {
-   "id": "iross-11",
-   "verdict": "add",
-   "label": "Also counted under IRRS",
-   "boxes": [
-    "note"
-   ],
-   "draft": null,
-   "suggested": "Stateless refugees appear in both IRRS and IROSS counts; the two totals should not be added.",
-   "why": "IROSS para 172 refers to stateless people also seeking international protection."
   }
  ]
 }
