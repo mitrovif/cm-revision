@@ -6,14 +6,12 @@ Live page: https://mitrovif.github.io/cm-revision/
 
 ## What the page does
 
-- **Follow a respondent:** answer the census questions one by one; the decision tree highlights the path and a panel shows the IRRS stock and the inclusion and exclusion errors at that point.
-- **Scenario switches:** for example, acquisition of citizenship not collected (IRRS), reason for displacement not asked (IRIS), or counting unknown citizenship and having register linkage for categories B and C (IROSS).
-- **Paper vs suggestions:** every inclusion and exclusion point in the draft with a verdict (keep, change, expand) and the points we add, each with a short reason. Hovering over an item draws lines to the boxes it affects in the tree.
-- **Agreement and ranking:** counts of draft points we agree with, would expand or change, and points missing from the draft; plus one ranking of draft and suggested points together, scored on reach, severity and fixability with adjustable weights.
-- **Box tables:** the draft's Box A.2 and A.3 mapping tables and a proposed Box A.4 table, with suggested changes struck through and in bold. Hovering over a point highlights the cells it touches, such as (x), (xi) or (xii).
-- **Explain any box:** hover over a box in the tree to see what it means; click to keep the explanation open (works on touch screens too).
+One tab per recommendation (IRRS, IRIS, IROSS). Each shows the decision tree from census questions to the populations in scope, next to the draft's Box mapping table with suggested changes (struck draft text, bold suggested text).
 
-- **Three tabs:** IRRS, IRIS and IROSS, each with its own questions, switches and tree. Links can open a tab directly, for example `#iross`.
+- **Hover** over a box in the tree or a cell in the table to see what it means and, for every point linked to it, what the draft says, what we suggest and why. Linked boxes and cells light up.
+- **Click** to keep the explanation open.
+- **Coloured markers** on boxes and cells show where points sit: keep (draft point we agree with), expand, change, and add (missing from the draft).
+- Links can open a tab directly, for example `#iross`.
 
 ## Structure
 
