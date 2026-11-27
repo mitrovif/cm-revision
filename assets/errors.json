@@ -57,7 +57,7 @@
    ],
    "draft": "Inclusion (under persons in need of international protection): someone born abroad who is a citizen of the census country and flees to it is counted as having a refugee background.",
    "suggested": "Move to refugee background, and make it conditional: it happens only where acquisition of citizenship (iii) is not collected or not used. Set (iii) to “other than by birth” in Box A.2.",
-   "why": "The person is wrongly counted in refugee background, not in the other stock (Felix's comment). With (iii) asked and used, citizens by birth drop out at the “by birth” branch."
+   "why": "The person is wrongly counted in refugee background, not in persons in need of international protection. With (iii) asked and used, citizens by birth drop out at the “by birth” branch."
   },
   {
    "id": "irrs-6",
@@ -200,7 +200,7 @@
    ],
    "draft": "Exclusion: people who move abroad for less than 12 months and come back should still count as IDPs, but the questions do not elicit time spent abroad.",
    "suggested": "Explain the mechanism: they answer “abroad” to (xiii), and the “within country” filter removes them.",
-   "why": "Joe questioned this paragraph; the problem is the filter on (xiii), not the time abroad as such."
+   "why": "The problem is the filter on (xiii), not the time abroad as such."
   },
   {
    "id": "iris-3",
@@ -279,7 +279,7 @@
    ],
    "draft": null,
    "suggested": "Household members for whom the displacement questions are skipped, most often children, are missed.",
-   "why": "IRIS recommends asking all household members (para 216), in line with Felix's comment."
+   "why": "IRIS recommends asking all household members (para 216)."
   },
   {
    "id": "iris-10",

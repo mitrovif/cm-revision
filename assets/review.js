@@ -30,7 +30,7 @@ window.CM_REVIEW = {
     { cells: ["iii-2", "iii-t"], score: { size: 1, severity: 2, fix: 3 }, verdict: "change", where: ["inc-o4", "q-iii", "p-bybirth"],
       paper: "Inclusion (under persons in need of international protection): someone born abroad who is a citizen of the census country and flees to it is counted as having a refugee background.",
       ours: "Move to refugee background, and make it conditional: it happens only where acquisition of citizenship (iii) is not collected or not used. Set (iii) to “other than by birth” in Box A.2.",
-      why: "The person is wrongly counted in refugee background, not in the other stock (Felix's comment). With (iii) asked and used, citizens by birth drop out at the “by birth” branch." },
+      why: "The person is wrongly counted in refugee background, not in persons in need of international protection. With (iii) asked and used, citizens by birth drop out at the “by birth” branch." },
     { cells: ["v-2", "kids-t", "kids-s"], score: { size: 2, severity: 2, fix: 2 }, verdict: "expand", where: ["out-o4", "exc-o4"],
       paper: "Refugee background: naturalised former refugees are identified, and children if they live with an identified refugee parent.",
       ours: "Add that naturalised former refugees are identified only if their most recent move was forced, and that the household link for children is not part of the Box A.2 mapping.",
@@ -85,7 +85,7 @@ window.CM_REVIEW = {
     { cells: ["xiii-1", "xiii-2", "xiii-3"], score: { size: 1, severity: 3, fix: 2 }, verdict: "change", where: ["exc-n2", "p-abroad"],
       paper: "Exclusion: people who move abroad for less than 12 months and come back should still count as IDPs, but the questions do not elicit time spent abroad.",
       ours: "Explain the mechanism: they answer “abroad” to (xiii), and the “within country” filter removes them.",
-      why: "Joe questioned this paragraph; the problem is the filter on (xiii), not the time abroad as such." },
+      why: "The problem is the filter on (xiii), not the time abroad as such." },
     { cells: ["ix-t"], score: { size: 1, severity: 2, fix: 1 }, verdict: "change", where: ["exc-n1", "p-no"],
       paper: "Exclusion: IDPs “in situ”, who relocated by choice before something happened that made return impossible.",
       ours: "Limit it to people who were temporarily away from their place of habitual residence when the event occurred, and who may answer “no” to (ix).",
@@ -113,7 +113,7 @@ window.CM_REVIEW = {
     { cells: ["ix-t"], score: { size: 3, severity: 3, fix: 3 }, verdict: "add", where: ["exc-n1", "q-ix"],
       paper: "",
       ours: "Household members for whom the displacement questions are skipped, most often children, are missed.",
-      why: "IRIS recommends asking all household members (para 216), in line with Felix's comment." },
+      why: "IRIS recommends asking all household members (para 216)." },
     { cells: ["ix-t"], score: { size: 2, severity: 2, fix: 1 }, verdict: "add", where: ["exc-n1"],
       paper: "",
       ours: "People who do not disclose a forced move out of fear, or whose history is unknown to a proxy respondent, are missed.",
@@ -131,7 +131,7 @@ window.CM_REVIEW = {
       why: "IROSS paras 63, 64 and 154." },
     { cells: [], score: { size: 3, severity: 3, fix: 1 }, verdict: "keep", where: ["note"],
       paper: "Coverage error: stateless people are at particular risk of omission, for example because they avoid authorities.",
-      ours: "Kept, paraphrased rather than quoted, as Felix asked.",
+      ours: "Kept, paraphrased rather than quoted.",
       why: "IROSS para 171; it is the one error type the draft already covers." },
     { cells: ["intro", "i-t", "ii-t"], score: { size: 2, severity: 2, fix: 3 }, verdict: "change", where: ["q-cit", "q-birth"],
       paper: "Box A.4 lists six internal migration topics as the core topics for identification.",
@@ -172,6 +172,6 @@ window.CM_REVIEW = {
     { cells: ["i-1", "i-2", "i-3", "ii-1", "ii-2", "ii-3", "rec-s"], score: { size: 2, severity: 2, fix: 3 }, verdict: "add", where: ["out-anb", "out-afb", "out-pa"],
       paper: "",
       ours: "A mapping table at the end of Box A.4, like Boxes A.2 and A.3.",
-      why: "Requested by Felix, and it makes the identification rule explicit." }
+      why: "It makes the identification rule explicit." }
   ]
 };
