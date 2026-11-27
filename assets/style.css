@@ -166,3 +166,24 @@ h2 { font-size: 1.75rem; line-height: 1.28; font-weight: 600; margin: 0; }
 
 footer { color: var(--egriss-muted); font-size: 13px; padding: var(--space-2) var(--space-5) var(--space-7); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Box tables */
+.modes.small { margin-bottom: var(--space-3); }
+.modes.small button { font-size: 13px; padding: 4px var(--space-3); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--egriss-line); border-radius: var(--radius-md); background: #fff; }
+.boxtbl { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; }
+.boxtbl caption { text-align: left; font: 600 15px var(--font-head); color: var(--egriss-navy); padding: var(--space-3) var(--space-3) var(--space-2); }
+.boxtbl th, .boxtbl td { border-top: 1px solid var(--egriss-line); padding: var(--space-2) var(--space-3); text-align: left; vertical-align: top; transition: background var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease); }
+.boxtbl thead th { background: var(--egriss-navy); color: #fff; font-weight: 600; font-size: 12px; border-top: none; }
+.boxtbl tbody th { font-weight: 600; color: var(--egriss-navy); background: var(--egriss-tint); width: 34%; }
+.boxtbl tr.added th, .boxtbl tr.added td { background: #f1f6fd; }
+.boxtbl .muted { color: var(--egriss-muted); font-style: italic; }
+del { color: #8a2b2c; text-decoration: line-through; text-decoration-color: var(--egriss-coral); }
+ins { color: var(--egriss-blue); text-decoration: none; font-weight: 600; }
+.boxtbl .cell-hl { background: #fff8e6 !important; box-shadow: inset 0 0 0 3px var(--lc, var(--egriss-coral)); }
+.boxtbl thead .cell-hl { background: var(--egriss-deep) !important; }
+label.inline { display: inline-flex; align-items: center; gap: var(--space-1); cursor: pointer; }
+label.inline input { accent-color: var(--egriss-blue); }
+.boxchip { border: 1px solid var(--egriss-line); background: var(--egriss-tint); color: var(--egriss-navy); font: 500 11px var(--font-mono); border-radius: var(--radius-xs); padding: 1px 6px; cursor: pointer; }
+.boxchip:hover { border-color: var(--egriss-blue); }
+.boxtbl td, .boxtbl th { overflow-wrap: anywhere; }

@@ -153,12 +153,62 @@
     modeBtns.explore.classList.add("on"); modeBtns.explore.setAttribute("aria-selected", "true");
     left.appendChild(modes); left.appendChild(explore); left.appendChild(compare); left.appendChild(ranking);
     const right = el("div");
-    right.appendChild(el("p", { class: "hint", text: D.hint }));
+    const B = (window.CM_BOXES || {})[key];
+    const rswitch = el("div", { class: "modes small", role: "tablist", "aria-label": "Right panel" });
+    const treeView = el("div"); const boxView = el("div", { hidden: "" });
+    const rbTree = el("button", { class: "on", role: "tab", "aria-selected": "true", text: "Decision tree" });
+    const rbBox = el("button", { role: "tab", "aria-selected": "false", text: B ? B.title.split(":")[0] + " table" : "Box table" });
+    function setRight(v) {
+      const t = v === "tree"; treeView.hidden = !t; boxView.hidden = t;
+      rbTree.classList.toggle("on", t); rbBox.classList.toggle("on", !t);
+      rbTree.setAttribute("aria-selected", String(t)); rbBox.setAttribute("aria-selected", String(!t));
+      redraw();
+    }
+    rbTree.addEventListener("click", () => setRight("tree")); rbBox.addEventListener("click", () => setRight("box"));
+    rswitch.appendChild(rbTree); if (B) rswitch.appendChild(rbBox);
+    right.appendChild(rswitch);
+    treeView.appendChild(el("p", { class: "hint", text: D.hint }));
     const tree = el("figure", { class: "tree" });
     const details = el("div", { class: "details", "aria-live": "polite" }, [el("p", { class: "empty", text: "Click a box in the tree to read its explanation here." })]);
-    right.appendChild(tree); right.appendChild(details);
+    treeView.appendChild(tree); treeView.appendChild(details);
+    right.appendChild(treeView); right.appendChild(boxView);
+
+    // ---- Box table with suggested changes
+    let showChanges = true;
+    function cellNode(c, tag) {
+      const td = el(tag, { id: key + "-cell-" + c.id, class: "bx" + (c.ours !== undefined ? " changed" : "") });
+      if (c.span) td.setAttribute("colspan", String(c.span));
+      if (c.ours === undefined) td.textContent = c.draft;
+      else if (c.draft === null) { if (showChanges) td.appendChild(el("ins", { text: c.ours })); else { td.textContent = "(not in draft)"; td.classList.add("muted"); } }
+      else if (showChanges) { td.appendChild(el("del", { text: c.draft })); td.appendChild(document.createTextNode(" ")); td.appendChild(el("ins", { text: c.ours })); }
+      else td.textContent = c.draft;
+      return td;
+    }
+    function renderBox() {
+      if (!B) return;
+      boxView.innerHTML = "";
+      const cb = el("input", { type: "checkbox" }); cb.checked = showChanges;
+      cb.addEventListener("change", () => { showChanges = cb.checked; renderBox(); redraw(); });
+      boxView.appendChild(el("p", { class: "hint" }, [el("label", { class: "inline" }, [cb, " Show suggested changes"]), "   ", el("del", { text: "draft" }), " ", el("ins", { text: "suggested" })]));
+      const tbl = el("table", { class: "boxtbl" });
+      tbl.appendChild(el("caption", { text: B.title }));
+      const thead = el("thead"); const hr = el("tr"); hr.appendChild(el("th", { text: "Question topic" }));
+      B.cols.forEach((c, i) => hr.appendChild(el("th", { id: key + "-cell-h-" + (i + 1), text: c })));
+      thead.appendChild(hr); tbl.appendChild(thead);
+      const tb = el("tbody");
+      if (B.intro) { const tr = el("tr", { class: "intro-row" }); const td = cellNode({ id: "intro", draft: B.intro.draft, ours: B.intro.ours, span: B.cols.length + 1 }, "td"); tr.appendChild(td); tb.appendChild(tr); }
+      B.rows.forEach(r => {
+        const tr = el("tr", { class: r.added ? "added" : "" });
+        r.cells.forEach((c, i) => tr.appendChild(cellNode(c, i === 0 ? "th" : "td")));
+        tb.appendChild(tr);
+      });
+      tbl.appendChild(tb);
+      boxView.appendChild(el("div", { class: "table-wrap" }, [tbl]));
+    }
+    renderBox();
+    const rowLabel = id => { if (id === "intro") return "topic list"; if (id.startsWith("h-")) return "column headings"; const r = id.split("-")[0]; return r === "kids" ? "children row" : r === "rec" ? "B and C row" : "(" + r + ")"; };
     const fig = { irrs: "Fig1_census_IRRS_identification_tree.png", iris: "Fig2_census_IRIS_identification_tree.png", iross: "Fig3_census_IROSS_identification_tree.png" }[key];
-    right.appendChild(el("p", { class: "dl" }, [el("a", { href: "img/" + fig, download: "", text: "Download the tree as an image" })]));
+    treeView.appendChild(el("p", { class: "dl" }, [el("a", { href: "img/" + fig, download: "", text: "Download the tree as an image" })]));
     grid.appendChild(left); grid.appendChild(right);
     right.classList.add("sticky");
 
@@ -221,7 +271,7 @@
       rows.forEach((r, i) => {
         const tier = r.total >= 7.5 ? "high" : r.total >= 5.5 ? "medium" : "low";
         const src = r.verdict === "add" ? "added" : "draft";
-        const head = el("div", {}, [el("span", { class: "verdict v-" + r.verdict, text: VERD[r.verdict] }), " ", el("span", { class: "src src-" + src, text: SRC[src][0] }), el("span", { class: "tier " + tier, text: tier + " priority" })]);
+        const head = el("div", {}, [el("span", { class: "verdict v-" + r.verdict, text: VERD[r.verdict] }), " ", el("span", { class: "src src-" + src, text: SRC[src][0] }), el("span", { class: "tier " + tier, text: tier + " priority" }), " ", boxChip(r)]);
         const body = el("div", {}, [head, el("p", { class: "txt", text: r.paper || r.ours })]);
         if (r.paper && r.verdict !== "keep") body.appendChild(el("p", { class: "txt ref", text: "Suggested: " + r.ours }));
         const bars = el("div", { class: "bars" });
@@ -246,13 +296,20 @@
       }
       const t = tipFor(id); return t ? t.title : id;
     };
+    function boxChip(r) {
+      const ids = (r.cells || []); if (!ids.length || !B) return el("span");
+      const labs = ids.map(rowLabel).filter((x, i, a) => a.indexOf(x) === i);
+      const b = el("button", { class: "boxchip", type: "button", title: "Show in the " + B.title.split(":")[0] + " table", text: B.title.split(":")[0] + ": " + labs.join(", ") });
+      b.addEventListener("click", e => { e.stopPropagation(); setRight("box"); });
+      return b;
+    }
     let pinned = null;
     function renderReview() {
       list.innerHTML = ""; pinned = null; clearLinks();
       R.filter(r => filt === "all" || r.verdict === filt).forEach(r => {
         const row = el("div", { class: "rv rv-" + r.verdict, tabindex: "0" });
         row.appendChild(el("div", { class: "rv-head" }, [el("span", { class: "verdict v-" + r.verdict, text: VERD[r.verdict] }),
-          el("span", { class: "where", text: "Tree: " + r.where.map(targetName).filter((x, i, a) => a.indexOf(x) === i).join("; ") })]));
+          el("span", { class: "where", text: "Tree: " + r.where.map(targetName).filter((x, i, a) => a.indexOf(x) === i).join("; ") }), boxChip(r)]));
         row.appendChild(el("div", { class: "rv-cols" }, [
           el("div", {}, [el("div", { class: "rv-label", text: "In the draft" }), el("p", { class: r.paper ? "" : "muted", text: r.paper || "Not in the draft." })]),
           el("div", {}, [el("div", { class: "rv-label", text: "Suggested" }), el("p", { text: r.ours })])
@@ -271,25 +328,34 @@
       active = null;
       const ov = document.getElementById("links"); if (ov) ov.innerHTML = "";
       const svg = tree.querySelector("svg"); if (svg) svg.querySelectorAll("g.linked").forEach(g => { g.classList.remove("linked"); g.style.removeProperty("--lc"); });
+      boxView.querySelectorAll(".cell-hl").forEach(c => { c.classList.remove("cell-hl"); c.style.removeProperty("--lc"); });
     }
     function drawLinks(row, r) {
       clearLinks(); active = [row, r];
-      const svg = tree.querySelector("svg"); if (!svg) return;
       const ov = document.getElementById("links");
       const rr = row.getBoundingClientRect();
       const col = VCOL[r.verdict];
+      const line = (tr) => {
+        if (window.innerWidth < 900 || panel.hidden) return;
+        if (tr.bottom < 0 || tr.top > window.innerHeight || (tr.width === 0 && tr.height === 0)) return;
+        const x1 = rr.right, y1 = rr.top + Math.min(28, rr.height / 2), x2 = tr.left, y2 = tr.top + tr.height / 2, mx = (x1 + x2) / 2;
+        ov.insertAdjacentHTML("beforeend", `<path d="M${x1} ${y1} C${mx} ${y1}, ${mx} ${y2}, ${x2 - 4} ${y2}" fill="none" stroke="${col}" stroke-width="1.6" stroke-dasharray="5 4" opacity=".85"/><circle cx="${x1}" cy="${y1}" r="3.5" fill="${col}"/><circle cx="${x2 - 2}" cy="${y2}" r="3.5" fill="${col}"/>`);
+      };
+      const rowsDone = new Set();
+      (r.cells || []).forEach(id => {
+        const c = boxView.querySelector("#" + key + "-cell-" + id); if (!c) return;
+        c.classList.add("cell-hl"); c.style.setProperty("--lc", col);
+        const tr = c.closest("tr"); if (boxView.hidden || rowsDone.has(tr)) return;
+        rowsDone.add(tr); line(tr.getBoundingClientRect());
+      });
+      const svg = tree.querySelector("svg"); if (!svg) return;
       r.where.forEach(id => {
         const g = svg.querySelector("#" + key + "-" + id); if (!g) return;
         g.classList.add("linked"); g.style.setProperty("--lc", col);
-        if (window.innerWidth < 860 || panel.hidden) return;
-        const br = g.getBoundingClientRect();
-        if (br.bottom < 0 || br.top > window.innerHeight) return;
-        const x1 = rr.right, y1 = rr.top + Math.min(28, rr.height / 2), x2 = br.left, y2 = br.top + br.height / 2;
-        const mx = (x1 + x2) / 2;
-        ov.insertAdjacentHTML("beforeend", `<path d="M${x1} ${y1} C${mx} ${y1}, ${mx} ${y2}, ${x2 - 4} ${y2}" fill="none" stroke="${col}" stroke-width="1.6" stroke-dasharray="5 4" opacity=".85"/><circle cx="${x1}" cy="${y1}" r="3.5" fill="${col}"/><circle cx="${x2 - 2}" cy="${y2}" r="3.5" fill="${col}"/>`);
+        if (!treeView.hidden) line(g.getBoundingClientRect());
       });
     }
-    const redraw = () => { if (active) drawLinks(active[0], active[1]); };
+    function redraw() { if (active) drawLinks(active[0], active[1]); }
     window.addEventListener("scroll", redraw, { passive: true }); window.addEventListener("resize", redraw);
     card.appendChild(grid);
 
