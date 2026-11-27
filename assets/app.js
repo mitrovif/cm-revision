@@ -36,24 +36,61 @@
     grid.appendChild(left); grid.appendChild(right);
     card.appendChild(grid);
 
-    // background: the draft's Box table, as written
-    const bg = el("details", { class: "bg" });
-    bg.appendChild(el("summary", { text: B && B.rows.some(r => !r.added) ? B.title.split(":")[0] + " as in the draft (background)" : "Box A.4 (background)" }));
-    if (B && B.rows.some(r => !r.added)) {
+    // second view: the Box table with suggested changes
+    const WHY = (window.CM_BOX_WHY || {})[key] || {};
+    const tview = el("div", { class: "tview", hidden: "" });
+    const isNew = B && !B.rows.some(r => !r.added);
+    tview.appendChild(el("p", { class: "lead small", text: isNew
+      ? "The draft has no mapping table for stateless persons. This is a suggested one. Hover over a cell for the reason."
+      : "The draft table with suggested changes: struck-through text is the draft, bold text is the suggestion. Hover over a changed cell for the reason." }));
+    function cellNode(c, tag) {
+      const td = el(tag);
+      if (c.span) td.setAttribute("colspan", String(c.span));
+      if (c.ours != null) {
+        td.classList.add("chg");
+        if (c.draft) td.appendChild(el("del", { text: c.draft }));
+        td.appendChild(el("ins", { text: c.ours }));
+        const w = WHY[c.id];
+        if (w) { td.dataset.why = w; td.tabIndex = 0; }
+      } else td.appendChild(document.createTextNode(c.draft || ""));
+      return td;
+    }
+    if (B) {
+      if (B.filter) {
+        const f = el("p", { class: "filter chg" }, [el("del", { text: B.filter.draft }), el("ins", { text: B.filter.ours })]);
+        f.dataset.why = B.filter.why; f.tabIndex = 0; tview.appendChild(f);
+      }
       const tbl = el("table", { class: "boxtbl" });
       const hr = el("tr", {}, [el("th", { text: "Question topic" })]); B.cols.forEach(c => hr.appendChild(el("th", { text: c })));
       tbl.appendChild(el("thead", {}, [hr]));
       const tb = el("tbody");
-      B.rows.filter(r => !r.added).forEach(r => {
-        const tr = el("tr");
-        r.cells.forEach((c, i) => { const td = el(i === 0 ? "th" : "td", { text: c.draft }); if (c.span) td.setAttribute("colspan", String(c.span)); tr.appendChild(td); });
+      B.rows.forEach(r => {
+        const tr = el("tr", { class: r.added && !isNew ? "added" : "" });
+        r.cells.forEach((c, i) => tr.appendChild(cellNode(c, i === 0 ? "th" : "td")));
         tb.appendChild(tr);
       });
       tbl.appendChild(tb);
-      bg.appendChild(el("div", { class: "table-wrap" }, [tbl]));
-      bg.appendChild(el("p", { class: "hint", text: "Shown as in the draft; suggested changes to the table are not covered here." }));
-    } else bg.appendChild(el("p", { class: "hint", text: "The draft has no mapping table for stateless persons; it lists question topics only." }));
-    card.appendChild(bg);
+      tview.appendChild(el("div", { class: "table-wrap" }, [tbl]));
+      tview.addEventListener("mousemove", e => {
+        const c = e.target.closest("[data-why]"); const T = tip();
+        if (!c) { T.hidden = true; return; }
+        T.innerHTML = ""; T.appendChild(el("div", { class: "tip-body" }, [el("div", { class: "tip-title", text: "Why" }), el("p", { text: c.dataset.why })]));
+        T.hidden = false;
+        const w = T.offsetWidth, h = T.offsetHeight; let x = e.clientX + 14, y = e.clientY + 14;
+        if (x + w > window.innerWidth - 8) x = e.clientX - w - 14;
+        if (y + h > window.innerHeight - 8) y = Math.max(8, window.innerHeight - h - 8);
+        T.style.left = x + "px"; T.style.top = y + "px";
+      });
+      tview.addEventListener("mouseleave", () => tip().hidden = true);
+    }
+    const views = el("div", { class: "subtabs", role: "tablist" });
+    const b1 = el("button", { class: "active", text: "Inclusion and exclusion", role: "tab" });
+    const b2 = el("button", { text: isNew ? "Suggested table" : "Table with suggested changes", role: "tab" });
+    function view(n) { grid.hidden = n !== 1; tview.hidden = n !== 2; b1.classList.toggle("active", n === 1); b2.classList.toggle("active", n === 2); tip().hidden = true; }
+    b1.addEventListener("click", () => view(1)); b2.addEventListener("click", () => view(2));
+    views.appendChild(b1); views.appendChild(b2);
+    card.insertBefore(views, grid);
+    card.appendChild(tview);
     panel.appendChild(card);
 
     // explanations

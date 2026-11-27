@@ -232,3 +232,14 @@ label.inline input { accent-color: var(--egriss-blue); }
 details.bg { margin-top: var(--space-5); border-top: 1px solid var(--egriss-line); padding-top: var(--space-3); }
 details.bg summary { cursor: pointer; color: var(--egriss-blue); font-weight: 500; }
 details.bg .table-wrap { margin-top: var(--space-3); }
+
+/* sub-views: graph and table */
+.subtabs { display: flex; gap: var(--space-2); margin: var(--space-3) 0 var(--space-4); border-bottom: 1px solid var(--egriss-line); }
+.subtabs button { background: none; border: none; border-bottom: 3px solid transparent; padding: 8px 4px; margin-bottom: -1px; font: inherit; font-weight: 500; color: var(--egriss-muted, #5a6884); cursor: pointer; }
+.subtabs button.active { color: var(--egriss-navy, #14234c); border-bottom-color: var(--egriss-teal, #4cc3c9); }
+.tview .boxtbl td.chg, .tview .boxtbl th.chg, .tview .filter.chg { background: #eef3fa; cursor: help; }
+.tview del { color: #c94a4b; display: block; }
+.tview ins { text-decoration: none; font-weight: 600; color: #14234c; display: block; }
+.tview tr.added th, .tview tr.added td { border-top: 2px solid #3b71b9; }
+.tview .filter { padding: 10px 12px; border-radius: 6px; font-size: 14px; }
+[hidden] { display: none !important; }
